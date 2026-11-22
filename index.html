@@ -4,47 +4,96 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Peta Desa Setia Mulya</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet" />
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.7.2/css/all.min.css" />
 
   <style>
     * { box-sizing: border-box; margin: 0; padding: 0; }
     html, body { height: 100%; }
     body {
-      font-family: Georgia, 'Times New Roman', serif;
-      background: #f3efe6;
-      color: #2a2a2a;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #ffffff;
+      color: #1e293b;
       display: flex;
       flex-direction: column;
     }
 
     header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
       padding: 10px 18px;
-      border-bottom: 1px solid #cfc8b8;
-      background: #f3efe6;
+      border-bottom: 1px solid #e2e8f0;
+      background: #ffffff;
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.06);
+      font-family: 'Plus Jakarta Sans', sans-serif;
     }
-    header h1 { font-size: 1.15rem; font-weight: bold; }
-    header p { font-size: 0.78rem; color: #6b6558; margin-top: 1px; font-family: Arial, sans-serif; }
+    .header-kiri { display: flex; align-items: center; gap: 12px; min-width: 0; }
+    .header-kanan { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+    .logo-desa, .logo-universitas { display: block; height: 44px; width: auto; object-fit: contain; flex-shrink: 0; }
+    .identitas { min-width: 0; }
+    header h1 { font-size: 1.1rem; font-weight: 700; line-height: 1.3; }
+    header p { font-size: 0.75rem; color: #64748b; margin-top: 2px; font-family: 'Plus Jakarta Sans', sans-serif; }
+    .tombol-profil {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border: 1px solid #1d4ed8;
+      border-radius: 8px;
+      background: #1d4ed8;
+      color: #ffffff;
+      font: 600 0.8rem 'Plus Jakarta Sans', sans-serif;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    .tombol-profil:hover { background: #1e40af; box-shadow: 0 2px 6px rgba(29, 78, 216, 0.22); }
+    .tombol-profil:focus-visible, .modal-tutup:focus-visible { outline: 3px solid #93c5fd; outline-offset: 2px; }
+    .tombol-kontak {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border: 1px solid #dc2626;
+      border-radius: 8px;
+      background: #dc2626;
+      color: #ffffff;
+      font: 600 0.8rem 'Plus Jakarta Sans', sans-serif;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: background 0.2s, box-shadow 0.2s;
+    }
+    .tombol-kontak:hover { background: #b91c1c; box-shadow: 0 2px 6px rgba(220, 38, 38, 0.22); }
+    .tombol-kontak:focus-visible { outline: 3px solid #fca5a5; outline-offset: 2px; }
 
     .wrap { flex: 1; display: flex; min-height: 0; }
     #map { flex: 1; }
 
     aside {
       width: 300px;
-      border-left: 1px solid #cfc8b8;
+      border-left: 1px solid #e2e8f0;
       display: flex;
       flex-direction: column;
-      font-family: Arial, sans-serif;
-      background: #f3efe6;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #f8fafc;
     }
-    .tools { padding: 10px 12px; border-bottom: 1px solid #cfc8b8; }
+    .tools { padding: 10px 12px; border-bottom: 1px solid #e2e8f0; }
     .tools input, .tools select {
       width: 100%;
-      padding: 6px 8px;
-      border: 1px solid #b9b19e;
-      background: #fffdf8;
+      padding: 8px 10px;
+      border: 1px solid #cbd5e1;
+      border-radius: 8px;
+      background: #ffffff;
       font-size: 0.82rem;
-      font-family: inherit;
-      color: #2a2a2a;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      color: #1e293b;
     }
     .tools select { margin-top: 6px; }
 
@@ -53,13 +102,11 @@
       font-size: 0.7rem;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: #6b6558;
+      color: #64748b;
       padding: 12px 12px 4px;
     }
     .grup i {
-      display: inline-block;
-      width: 9px; height: 9px;
-      border-radius: 50%;
+      font-size: 0.8rem;
       margin-right: 6px;
     }
     .baris {
@@ -67,37 +114,417 @@
       font-size: 0.85rem;
       cursor: pointer;
       line-height: 1.3;
+      border-radius: 6px;
+      margin: 2px 6px;
     }
-    .baris:hover { background: #e8e2d3; }
-    .baris span { display: block; font-size: 0.72rem; color: #7a7466; }
+    .baris:hover { background: #e2e8f0; }
+    .baris span { display: block; font-size: 0.72rem; color: #64748b; }
 
     .catatan {
       padding: 8px 12px;
-      border-top: 1px solid #cfc8b8;
+      border-top: 1px solid #e2e8f0;
       font-size: 0.68rem;
-      color: #7a7466;
+      color: #64748b;
       line-height: 1.4;
     }
 
-    .leaflet-popup-content { font-family: Arial, sans-serif; font-size: 0.82rem; margin: 10px 12px; }
-    .leaflet-popup-content h3 { font-family: Georgia, serif; font-size: 0.95rem; margin-bottom: 3px; }
+    .leaflet-popup-content { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.82rem; margin: 10px 12px; }
+    .leaflet-popup-content h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.95rem; margin-bottom: 3px; }
     .leaflet-popup-content img { display: block; width: 100%; height: 130px; object-fit: cover; margin-bottom: 6px; }
-    .leaflet-popup-content p { margin: 2px 0; color: #444; }
-    .leaflet-popup-content a { color: #8a3b12; }
+    .leaflet-popup-content p { margin: 2px 0; color: #334155; }
+    .leaflet-popup-content a { color: #1d4ed8; }
+    .popup-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+    .leaflet-popup-content .popup-actions a {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 9px;
+      border-radius: 7px;
+      color: #ffffff;
+      font-size: 0.7rem;
+      font-weight: 600;
+      line-height: 1.3;
+      text-decoration: none;
+    }
+    .leaflet-popup-content .popup-action-arah { background: #1d4ed8; }
+    .leaflet-popup-content .popup-action-whatsapp { background: #16a34a; }
+    .leaflet-popup-content .popup-actions a:hover { filter: brightness(0.92); }
+    .leaflet-popup-content .popup-zonasi ul { margin: 4px 0 0; padding-left: 18px; }
+    .tooltip-zonasi { border: 0; border-radius: 6px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.72rem; font-weight: 600; }
+    .legenda-zonasi {
+      padding: 10px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 10px;
+      background: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 2px 8px rgba(15, 23, 42, 0.12);
+      color: #1e293b;
+      font: 500 0.7rem/1.45 'Plus Jakarta Sans', sans-serif;
+    }
+    .legenda-zonasi strong { display: block; margin-bottom: 6px; font-size: 0.72rem; }
+    .legenda-zonasi-item { display: flex; align-items: flex-start; gap: 7px; }
+    .legenda-zonasi-item + .legenda-zonasi-item { margin-top: 4px; }
+    .legenda-zonasi-swatch { width: 11px; height: 11px; flex: 0 0 11px; margin-top: 2px; border: 1px solid rgba(15, 23, 42, 0.2); border-radius: 3px; }
+    .gps-control { border: 0; background: transparent; box-shadow: none; }
+    .gps-control-button {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 9px 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 9px;
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(15, 23, 42, 0.14);
+      color: #1e293b;
+      font: 600 0.76rem 'Plus Jakarta Sans', sans-serif;
+      cursor: pointer;
+      white-space: nowrap;
+    }
+    .gps-control-button:hover { background: #f8fafc; }
+    .gps-control-button:disabled { cursor: wait; opacity: 0.75; }
+    .gps-control-button:focus-visible { outline: 3px solid #93c5fd; outline-offset: 2px; }
+    .gps-marker { border: 0; background: transparent; }
+    .gps-pulse { position: relative; display: grid; width: 28px; height: 28px; place-items: center; }
+    .gps-pulse::before {
+      position: absolute;
+      inset: 3px;
+      border-radius: 50%;
+      background: rgba(37, 99, 235, 0.28);
+      content: '';
+      animation: gps-pulse 1.8s ease-out infinite;
+    }
+    .gps-pulse-core {
+      z-index: 1;
+      width: 15px;
+      height: 15px;
+      border: 3px solid #ffffff;
+      border-radius: 50%;
+      background: #2563eb;
+      box-shadow: 0 1px 5px rgba(15, 23, 42, 0.45);
+    }
+    @keyframes gps-pulse {
+      0% { transform: scale(0.45); opacity: 0.9; }
+      100% { transform: scale(1.8); opacity: 0; }
+    }
+
+    body.modal-terbuka { overflow: hidden; }
+    .modal-overlay {
+      position: fixed;
+      inset: 0;
+      z-index: 2000;
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: rgba(15, 23, 42, 0.52);
+      backdrop-filter: blur(5px);
+      -webkit-backdrop-filter: blur(5px);
+    }
+    .modal-overlay.is-open { display: flex; }
+    .modal-kartu {
+      width: min(920px, 100%);
+      max-height: min(90vh, 900px);
+      overflow-y: auto;
+      border: 1px solid #e2e8f0;
+      border-radius: 18px;
+      background: #ffffff;
+      box-shadow: 0 24px 70px rgba(15, 23, 42, 0.24);
+    }
+    .modal-header {
+      display: flex;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 24px 28px 20px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    .modal-eyebrow { margin-bottom: 6px; color: #2563eb; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.1em; }
+    .modal-header h2 { color: #0f172a; font-size: 1.25rem; line-height: 1.35; }
+    .modal-subjudul { margin-top: 4px; color: #64748b; font-size: 0.84rem; }
+    .modal-tutup {
+      display: grid;
+      width: 36px;
+      height: 36px;
+      flex: 0 0 36px;
+      place-items: center;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      background: #f8fafc;
+      color: #475569;
+      font-size: 1rem;
+      cursor: pointer;
+    }
+    .modal-tutup:hover { background: #e2e8f0; }
+    .modal-body { display: grid; gap: 24px; padding: 24px 28px 28px; }
+    .bagian-modal h3 { margin-bottom: 12px; color: #0f172a; font-size: 0.95rem; font-weight: 700; }
+    .ringkasan-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
+    .kartu-ringkasan {
+      min-height: 114px;
+      padding: 15px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+    }
+    .ringkasan-ikon {
+      display: grid;
+      width: 32px;
+      height: 32px;
+      margin-bottom: 12px;
+      place-items: center;
+      border-radius: 9px;
+      background: #dbeafe;
+      color: #1d4ed8;
+      font-size: 0.9rem;
+    }
+    .ringkasan-label { display: block; margin-bottom: 4px; color: #64748b; font-size: 0.72rem; }
+    .ringkasan-nilai { display: block; color: #0f172a; font-size: 0.95rem; font-weight: 700; }
+    .batas-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+    .batas-item { padding: 12px 14px; border: 1px solid #e2e8f0; border-radius: 10px; background: #ffffff; }
+    .batas-arah { display: block; margin-bottom: 3px; color: #64748b; font-size: 0.7rem; font-weight: 600; text-transform: uppercase; }
+    .batas-nama { color: #1e293b; font-size: 0.8rem; font-weight: 500; line-height: 1.5; }
+    .statistik-daftar { display: grid; gap: 14px; }
+    .statistik-baris { display: grid; gap: 7px; }
+    .statistik-info { display: flex; align-items: center; justify-content: space-between; gap: 12px; color: #334155; font-size: 0.78rem; }
+    .statistik-nama { display: inline-flex; align-items: center; gap: 8px; }
+    .statistik-nama i { width: 16px; text-align: center; }
+    .statistik-jumlah { color: #0f172a; font-weight: 700; }
+    .statistik-latar { height: 8px; overflow: hidden; border-radius: 999px; background: #e2e8f0; }
+    .statistik-isi { height: 100%; border-radius: inherit; transition: width 0.25s ease; }
+    .modal-kartu-kontak { width: min(980px, 100%); }
+    .modal-body-kontak { display: grid; gap: 16px; padding: 20px 28px 28px; }
+    .nomor-nasional {
+      padding: 16px;
+      border: 1px solid #fecaca;
+      border-radius: 12px;
+      background: #fff7f7;
+    }
+    .nomor-nasional h3 { margin-bottom: 12px; color: #991b1b; font-size: 0.9rem; }
+    .nomor-nasional-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; }
+    .nomor-nasional-item {
+      display: flex;
+      align-items: flex-start;
+      flex-direction: column;
+      gap: 5px;
+      padding: 10px;
+      border: 1px solid #fee2e2;
+      border-radius: 9px;
+      background: #ffffff;
+      color: #334155;
+      font-size: 0.76rem;
+    }
+    .nomor-nasional-layanan { font-weight: 600; }
+    .nomor-nasional-angka {
+      display: inline-block;
+      padding: 3px 9px;
+      border-radius: 7px;
+      background: #fee2e2;
+      color: #b91c1c;
+      font-size: 1.15rem;
+      font-weight: 700;
+      letter-spacing: 0.03em;
+    }
+    .kontak-daftar { display: grid; gap: 10px; }
+    .kontak-kartu {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 14px 16px;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      background: #ffffff;
+    }
+    .kontak-info { min-width: 0; }
+    .kontak-nama { color: #0f172a; font-size: 0.86rem; font-weight: 700; }
+    .kontak-kategori { display: inline-block; margin: 4px 0; color: #64748b; font-size: 0.7rem; font-weight: 600; }
+    .kontak-rincian { color: #64748b; font-size: 0.72rem; line-height: 1.5; }
+    .kontak-nomor { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; margin-top: 6px; color: #334155; font-size: 0.74rem; }
+    .kontak-nomor i { color: #64748b; }
+    .kontak-ketiadaan { display: block; margin-top: 5px; color: #b45309; font-size: 0.7rem; }
+    .kontak-aksi { display: flex; flex: 0 0 auto; align-items: center; justify-content: flex-end; flex-wrap: wrap; gap: 6px; }
+    .kontak-tombol {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      padding: 8px 10px;
+      border: 0;
+      border-radius: 8px;
+      color: #ffffff;
+      font: 600 0.7rem 'Plus Jakarta Sans', sans-serif;
+      text-decoration: none;
+      white-space: nowrap;
+      cursor: pointer;
+    }
+    .kontak-tombol-whatsapp { background: #16a34a; }
+    .kontak-tombol-peta { background: #475569; }
+    .kontak-tombol:hover { filter: brightness(0.92); }
+    .kontak-tombol-salin {
+      padding: 5px 8px;
+      border: 1px solid #cbd5e1;
+      background: #f1f5f9;
+      color: #334155;
+      font-size: 0.65rem;
+    }
+    .kontak-tombol-salin:hover { background: #e2e8f0; filter: none; }
+
+    @media (max-width: 768px) {
+      header { flex-wrap: wrap; padding: 10px 12px; }
+      .header-kiri { gap: 8px; }
+      .header-kiri { flex: 1 1 100%; }
+      .header-kanan { gap: 8px; margin-left: auto; }
+      .tombol-profil { padding: 8px 10px; font-size: 0.72rem; }
+      .tombol-kontak { padding: 8px 10px; font-size: 0.72rem; }
+      header h1 { font-size: 0.95rem; }
+      header p { font-size: 0.65rem; }
+      .logo-desa, .logo-universitas { height: 36px; }
+      .modal-overlay { padding: 12px; }
+      .modal-kartu { max-height: 94vh; border-radius: 14px; }
+      .modal-header { padding: 20px 18px 16px; }
+      .modal-header h2 { font-size: 1.05rem; }
+      .modal-body { gap: 20px; padding: 18px; }
+      .ringkasan-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 9px; }
+      .kartu-ringkasan { min-height: 108px; padding: 12px; }
+      .modal-body-kontak { gap: 12px; padding: 16px 18px 20px; }
+      .nomor-nasional-grid { grid-template-columns: 1fr; }
+      .kontak-kartu { align-items: stretch; flex-direction: column; gap: 10px; padding: 12px; }
+      .kontak-aksi { justify-content: flex-start; }
+    }
+    @media (max-width: 420px) {
+      .header-kanan { width: 100%; justify-content: flex-end; }
+      .tombol-kontak, .tombol-profil { max-width: 112px; padding: 6px 7px; font-size: 0.63rem; white-space: normal; }
+      .tombol-kontak, .tombol-profil { gap: 5px; text-align: center; }
+      .batas-grid { gap: 8px; }
+      .batas-item { padding: 10px; }
+      .batas-nama { font-size: 0.73rem; }
+      .modal-header { gap: 8px; }
+      .modal-header h2 { font-size: 0.98rem; }
+      .ringkasan-nilai { font-size: 0.86rem; }
+    }
 
     @media (max-width: 768px) {
       .wrap { flex-direction: column; }
       #map { flex: none; height: 55%; }
-      aside { width: 100%; flex: 1; border-left: none; border-top: 1px solid #cfc8b8; min-height: 0; }
+      aside { width: 100%; flex: 1; border-left: none; border-top: 1px solid #e2e8f0; min-height: 0; }
     }
   </style>
 </head>
 <body>
 
   <header>
-    <h1>Peta Desa Setia Mulya</h1>
-    <p>Kecamatan Tarumajaya, Kabupaten Bekasi &middot; KKN Universitas Bhayangkara Jakarta Raya</p>
+    <div class="header-kiri">
+      <img class="logo-desa" src="foto/logo-bekasi.webp" alt="Logo Kabupaten Bekasi" onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Lambang_Kabupaten_Bekasi.svg/250px-Lambang_Kabupaten_Bekasi.svg.png';" />
+      <div class="identitas">
+        <h1>Peta Desa Setia Mulya</h1>
+        <p>Kecamatan Tarumajaya, Kabupaten Bekasi &middot; KKN Universitas Bhayangkara Jakarta Raya</p>
+      </div>
+    </div>
+    <div class="header-kanan">
+      <button class="tombol-kontak" id="buka-kontak" type="button">
+        <i class="fa-solid fa-phone-volume" aria-hidden="true"></i>
+        Kontak &amp; Darurat
+      </button>
+      <button class="tombol-profil" id="buka-profil" type="button">
+        <i class="fa-solid fa-chart-pie" aria-hidden="true"></i>
+        Profil &amp; Statistik Desa
+      </button>
+      <img class="logo-universitas" src="foto/logo-ubhara.png" alt="Logo Universitas Bhayangkara Jakarta Raya" onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/id/4/45/Logo_ubhara.png';" />
+    </div>
   </header>
+
+  <div class="modal-overlay" id="modal-profil" aria-hidden="true">
+    <section class="modal-kartu" role="dialog" aria-modal="true" aria-labelledby="modal-profil-judul">
+      <div class="modal-header">
+        <div>
+          <p class="modal-eyebrow">PROFIL DESA</p>
+          <h2 id="modal-profil-judul">Profil &amp; Statistik Wilayah Desa Setia Mulya</h2>
+          <p class="modal-subjudul">Kecamatan Tarumajaya, Kabupaten Bekasi</p>
+        </div>
+        <button class="modal-tutup" id="tutup-profil" type="button" aria-label="Tutup modal">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="modal-body">
+        <section class="bagian-modal">
+          <h3>Ringkasan Administratif</h3>
+          <div class="ringkasan-grid">
+            <article class="kartu-ringkasan">
+              <span class="ringkasan-ikon"><i class="fa-solid fa-map" aria-hidden="true"></i></span>
+              <span class="ringkasan-label">Luas Wilayah</span>
+              <strong class="ringkasan-nilai" id="nilai-luas"></strong>
+            </article>
+            <article class="kartu-ringkasan">
+              <span class="ringkasan-ikon"><i class="fa-solid fa-users" aria-hidden="true"></i></span>
+              <span class="ringkasan-label">Jumlah Penduduk</span>
+              <strong class="ringkasan-nilai" id="nilai-penduduk"></strong>
+            </article>
+            <article class="kartu-ringkasan">
+              <span class="ringkasan-ikon"><i class="fa-solid fa-house" aria-hidden="true"></i></span>
+              <span class="ringkasan-label">Wilayah Administratif</span>
+              <strong class="ringkasan-nilai" id="nilai-administratif"></strong>
+            </article>
+            <article class="kartu-ringkasan">
+              <span class="ringkasan-ikon"><i class="fa-solid fa-location-dot" aria-hidden="true"></i></span>
+              <span class="ringkasan-label">Total Titik Terpetakan</span>
+              <strong class="ringkasan-nilai" id="nilai-lokasi"></strong>
+            </article>
+          </div>
+        </section>
+
+        <section class="bagian-modal">
+          <h3>Batas Wilayah Administratif</h3>
+          <div class="batas-grid">
+            <article class="batas-item"><span class="batas-arah">Utara</span><span class="batas-nama">Desa Segarajaya &amp; Desa Pantaimakmur</span></article>
+            <article class="batas-item"><span class="batas-arah">Selatan</span><span class="batas-nama">Desa Pahlawansetia</span></article>
+            <article class="batas-item"><span class="batas-arah">Timur</span><span class="batas-nama">Desa Samudrajaya / Babelan</span></article>
+            <article class="batas-item"><span class="batas-arah">Barat</span><span class="batas-nama">Kanal Banjir Timur / Kec. Cilincing</span></article>
+          </div>
+        </section>
+
+        <section class="bagian-modal">
+          <h3>Statistik Fasilitas Desa (Terpetakan)</h3>
+          <div class="statistik-daftar" id="statistik-fasilitas"></div>
+        </section>
+      </div>
+    </section>
+  </div>
+
+  <div class="modal-overlay" id="modal-kontak" aria-hidden="true">
+    <section class="modal-kartu modal-kartu-kontak" role="dialog" aria-modal="true" aria-labelledby="modal-kontak-judul">
+      <div class="modal-header">
+        <div>
+          <p class="modal-eyebrow">LAYANAN WARGA</p>
+          <h2 id="modal-kontak-judul">Pusat Kontak &amp; Layanan Darurat Desa Setia Mulya</h2>
+          <p class="modal-subjudul">Informasi nomor telepon instansi dan kontak WhatsApp layanan warga Desa Setia Mulya</p>
+        </div>
+        <button class="modal-tutup" id="tutup-kontak" type="button" aria-label="Tutup kontak dan layanan darurat">
+          <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+        </button>
+      </div>
+      <div class="modal-body-kontak">
+        <section class="nomor-nasional" aria-labelledby="judul-nomor-nasional">
+          <h3 id="judul-nomor-nasional">Nomor Darurat Nasional &amp; Kabupaten Bekasi</h3>
+          <div class="nomor-nasional-grid">
+            <div class="nomor-nasional-item">
+              <span class="nomor-nasional-layanan">Polisi</span>
+              <strong class="nomor-nasional-angka">110</strong>
+            </div>
+            <div class="nomor-nasional-item">
+              <span class="nomor-nasional-layanan">Ambulans / Kemenkes</span>
+              <strong class="nomor-nasional-angka">119</strong>
+            </div>
+            <div class="nomor-nasional-item">
+              <span class="nomor-nasional-layanan">Pemadam Kebakaran</span>
+              <strong class="nomor-nasional-angka">113</strong>
+            </div>
+          </div>
+        </section>
+        <section class="bagian-modal">
+          <h3>Kontak Instansi &amp; Layanan Warga</h3>
+          <div class="kontak-daftar" id="daftar-kontak"></div>
+        </section>
+      </div>
+    </section>
+  </div>
 
   <div class="wrap">
     <div id="map"></div>
@@ -123,11 +550,159 @@
     const satelit = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Esri'
     });
-    L.control.layers({ "Peta": jalan, "Satelit": satelit }, null, { position: 'topleft' }).addTo(map);
+    const ZONASI_WILAYAH = {
+      "type": "FeatureCollection",
+      "features": [
+        {
+          "type": "Feature",
+          "properties": {
+            "nama": "Kp. Lagoa (Wilayah Utara)",
+            "warna": "#0ea5e9",
+            "cakupan": "cakupan rt sama rw minta data resmi ke desa ingetin",
+            "fasilitas": ["SMP Attaqwa 05 Lagoa", "Masjid Jami Baytussalam"]
+          },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [[
+              [106.9875, -6.1274],
+              [106.9958, -6.1272],
+              [106.9965, -6.1322],
+              [106.9876, -6.1322],
+              [106.9875, -6.1274]
+            ]]
+          }
+        },
+        {
+          "type": "Feature",
+          "properties": {
+            "nama": "Kp. Pamahan (Wilayah Tengah)",
+            "warna": "#f59e0b",
+            "cakupan": "cakupan rt sama rw minta data resmi ke desa ingetin",
+            "fasilitas": ["SDN Setia Mulya 02", "MTs Attaqwa 13", "Masjid Al-Mujahidun", "SPBU"]
+          },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [[
+              [106.9876, -6.1322],
+              [106.9926, -6.1322],
+              [106.9926, -6.1430],
+              [106.9888, -6.1430],
+              [106.9876, -6.1322]
+            ]]
+          }
+        },
+        {
+          "type": "Feature",
+          "properties": {
+            "nama": "Perumahan Harapan Mulya (Wilayah Timur)",
+            "warna": "#8b5cf6",
+            "cakupan": "cakupan rt sama rw minta data resmi ke desa ingetin",
+            "fasilitas": ["Masjid Raya Harapan Mulya", "TK Rumah Putik"]
+          },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [[
+              [106.9926, -6.1322],
+              [106.9968, -6.1345],
+              [106.9962, -6.1425],
+              [106.9926, -6.1430],
+              [106.9926, -6.1322]
+            ]]
+          }
+        },
+        {
+          "type": "Feature",
+          "properties": {
+            "nama": "Kp. Bogor (Wilayah Selatan)",
+            "warna": "#10b981",
+            "cakupan": "cakupan rt sama rw minta data resmi ke desa ingetin",
+            "fasilitas": ["Kantor Kepala Desa Setia Mulya", "Puskesmas Setiamulya", "SDN Setia Mulya 01"]
+          },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [[
+              [106.9888, -6.1430],
+              [106.9962, -6.1425],
+              [106.9942, -6.1492],
+              [106.9892, -6.1490],
+              [106.9888, -6.1430]
+            ]]
+          }
+        }
+      ]
+    };
+
+    const layerZonasi = L.layerGroup();
+    const geojsonZonasi = L.geoJSON(ZONASI_WILAYAH, {
+      style: feature => ({
+        color: feature.properties.warna,
+        fillColor: feature.properties.warna,
+        fillOpacity: 0.18,
+        weight: 1.5,
+        dashArray: '4 4'
+      }),
+      onEachFeature: (feature, layer) => {
+        const properti = feature.properties;
+        const fasilitas = properti.fasilitas.map(nama => `<li>${nama}</li>`).join('');
+        layer.bindTooltip(properti.nama, { sticky: true, className: 'tooltip-zonasi' });
+        layer.bindPopup(
+          `<div class="popup-zonasi"><h3>${properti.nama}</h3>` +
+          `<p>${properti.cakupan}</p><p><strong>Fasilitas utama</strong></p><ul>${fasilitas}</ul></div>`
+        );
+        layer.on({
+          mouseover: event => event.target.setStyle({ fillOpacity: 0.35 }),
+          mouseout: event => geojsonZonasi.resetStyle(event.target)
+        });
+      }
+    });
+    layerZonasi.addLayer(geojsonZonasi);
+    layerZonasi.addTo(map);
+
+    L.control.layers(
+      { "Peta": jalan, "Satelit": satelit },
+      { "Zonasi Kampung / RW": layerZonasi },
+      { position: 'topleft' }
+    ).addTo(map);
+
+    const legendaZonasi = L.control({ position: 'bottomleft' });
+    legendaZonasi.onAdd = () => {
+      const container = L.DomUtil.create('div', 'legenda-zonasi');
+      container.innerHTML = '<strong>Zonasi Kampung / RW</strong>' +
+        ZONASI_WILAYAH.features.map(feature =>
+          `<div class="legenda-zonasi-item"><span class="legenda-zonasi-swatch" style="background:${feature.properties.warna}"></span><span>${feature.properties.nama}</span></div>`
+        ).join('');
+      L.DomEvent.disableClickPropagation(container);
+      return container;
+    };
+    legendaZonasi.addTo(map);
 
     // Batas desa. Kalau sudah punya koordinat sendiri (dari geojson.io atau kantor desa),
     // tempel GeoJSON-nya di BATAS_MANUAL. Kalau dibiarkan null, dicari otomatis dari OpenStreetMap.
-    const BATAS_MANUAL = null;
+    const BATAS_MANUAL = {
+      "type": "FeatureCollection",
+      "features": [
+        {
+          "type": "Feature",
+          "properties": { "nama": "Desa Setia Mulya" },
+          "geometry": {
+            "type": "Polygon",
+            "coordinates": [
+              [
+                [106.9868, -6.1275],
+                [106.9958, -6.1272],
+                [106.9968, -6.1345],
+                [106.9962, -6.1425],
+                [106.9942, -6.1492],
+                [106.9892, -6.1490],
+                [106.9888, -6.1410],
+                [106.9875, -6.1340],
+                [106.9868, -6.1275]
+              ]
+            ]
+          }
+        }
+      ]
+    };
 
     const gayaBatas = { color: '#8a3b12', weight: 2, dashArray: '6 5', fillColor: '#8a3b12', fillOpacity: 0.05 };
 
@@ -167,7 +742,7 @@
         console.warn('Gagal memuat batas desa', e);
       }
     }
-    cariBatas();
+    cariBatas().then(() => geojsonZonasi.bringToFront());
 
     const WARNA = {
       "Pemerintahan": "#9c2f2f",
@@ -175,7 +750,26 @@
       "Pendidikan": "#2f5d8a",
       "Tempat Ibadah": "#3f7a57",
       "Toko & Layanan": "#6b4f8a",
-      "Pemakaman": "#777777"
+      "UMKM": "#b55a85",
+      "Pemakaman": "#777777",
+      "Layanan Warga & RW": "#0d9488"
+    };
+
+    const IKON = {
+      "Pemerintahan": "fa-solid fa-landmark",
+      "Kesehatan": "fa-solid fa-house-medical",
+      "Pendidikan": "fa-solid fa-graduation-cap",
+      "Tempat Ibadah": "fa-solid fa-mosque",
+      "Toko & Layanan": "fa-solid fa-store",
+      "UMKM": "fa-solid fa-shop",
+      "Pemakaman": "fa-solid fa-tree",
+      "Layanan Warga & RW": "fa-solid fa-people-roof"
+    };
+
+    const PROFIL_DESA = {
+      luasWilayah: "± 3,85 km²",
+      jumlahPenduduk: "± 18.450 Jiwa",
+      wilayahAdministratif: "12 RW / 48 RT"
     };
 
     // Tambah tempat baru: salin satu blok, isi, taruh sebelum penutup ]
@@ -183,11 +777,11 @@
     const tempat = [
       { nama: "Kantor Kepala Desa Setia Mulya", jenis: "Pemerintahan",
         lat: -6.1477082, lng: 106.9908815, foto: "foto/kantor-desa.jpg",
-        alamat: "Jl. Taruma Jaya", telp: "(021) 6073 9845", jam: "" },
+        alamat: "Jl. Taruma Jaya", telp: "(021) 6073 9845", wa: "", darurat: true, jam: "" },
 
       { nama: "UPTD Puskesmas Setiamulya", jenis: "Kesehatan",
         lat: -6.1478786, lng: 106.991002, foto: "foto/puskesmas.jpg",
-        alamat: "Jl. Taruma Jaya No. 168", telp: "",
+        alamat: "Jl. Taruma Jaya No. 168", telp: "", wa: "", darurat: true,
         jam: "Senin-Kamis 07.45-15.00, Jumat 07.45-14.30, Sabtu 07.45-14.00" },
 
       { nama: "SDN Setia Mulya 01", jenis: "Pendidikan",
@@ -240,7 +834,22 @@
 
       { nama: "Tempat Pemakaman Umum", jenis: "Pemakaman",
         lat: -6.1368261, lng: 106.9906578, foto: "foto/tpu.jpg",
-        alamat: "", telp: "", jam: "" }
+        alamat: "", telp: "", jam: "" },
+
+      { nama: "Posyandu Melati RW 03", jenis: "Layanan Warga & RW",
+        lat: -6.1415, lng: 106.9912, foto: "foto/posyandu.jpg",
+        alamat: "Kp. Pamahan RT 02/RW 03", telp: "", wa: "6281200000001",
+        jam: "Setiap Rabu Minggu ke-2 (08.00-11.00)" },
+      { nama: "Sekretariat RW 05 Kp. Pamahan", jenis: "Layanan Warga & RW",
+        lat: -6.1382, lng: 106.9903, foto: "foto/kantor-rw.jpg",
+        alamat: "Kp. Pamahan RW 05", telp: "", wa: "6281200000002", jam: "19.00-21.00 WIB" },
+      { nama: "Bank Sampah & TPS Setia Mulya", jenis: "Layanan Warga & RW",
+        lat: -6.1358, lng: 106.9895, foto: "foto/bank-sampah.jpg",
+        alamat: "Area Barat Kp. Pamahan", telp: "", wa: "", jam: "06.00-17.00 WIB" },
+      { nama: "Pos Kamling & Bhabinkamtibmas Setia Mulya", jenis: "Pemerintahan",
+        lat: -6.1465, lng: 106.9905, foto: "foto/pos-bhabin.jpg",
+        alamat: "Dekat Kantor Desa Setia Mulya", telp: "110", wa: "6281200000003",
+        darurat: true, jam: "24 Jam" }
     ];
 
     const listEl = document.getElementById('list');
@@ -253,9 +862,9 @@
     tempat.forEach(t => {
       const ikon = L.divIcon({
         className: '',
-        html: `<div style="width:14px;height:14px;border-radius:50%;background:${WARNA[t.jenis]};border:2px solid #fff;box-shadow:0 0 0 1px rgba(0,0,0,.35)"></div>`,
-        iconSize: [14, 14],
-        iconAnchor: [7, 7]
+        html: `<div style="width:28px;height:28px;border-radius:50%;background:${WARNA[t.jenis]};border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;line-height:1"><i class="${IKON[t.jenis]}" aria-hidden="true"></i></div>`,
+        iconSize: [28, 28],
+        iconAnchor: [14, 14]
       });
       t.marker = L.marker([t.lat, t.lng], { icon: ikon, title: t.nama });
 
@@ -267,13 +876,133 @@
       const foto = t.foto
         ? `<a href="${t.foto}" target="_blank" rel="noopener"><img src="${t.foto}" alt="${t.nama}" onerror="this.parentNode.remove()"></a>`
         : '';
+      const aksiWhatsApp = t.wa
+        ? `<a class="popup-action-whatsapp" href="https://wa.me/${t.wa}?text=Halo%20${encodeURIComponent(t.nama)},%20saya%20melihat%20informasi%20dari%20Peta%20Digital%20Desa%20Setia%20Mulya." target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i>Hubungi via WhatsApp</a>`
+        : '';
 
       t.marker.bindPopup(
         `${foto}<h3>${t.nama}</h3>${baris}` +
-        `<p><a href="https://www.google.com/maps/dir/?api=1&destination=${t.lat},${t.lng}" target="_blank" rel="noopener">Petunjuk arah</a></p>`,
+        `<div class="popup-actions"><a class="popup-action-arah" href="https://www.google.com/maps/dir/?api=1&destination=${t.lat},${t.lng}" target="_blank" rel="noopener"><i class="fa-solid fa-diamond-turn-right" aria-hidden="true"></i>Petunjuk Arah</a>${aksiWhatsApp}</div>`,
         { minWidth: 220, maxWidth: 260 }
       );
     });
+
+    let tombolGPS;
+    let markerPengguna = null;
+    let lingkaranAkurasi = null;
+    const ikonPengguna = L.divIcon({
+      className: 'gps-marker',
+      html: '<span class="gps-pulse"><span class="gps-pulse-core"></span></span>',
+      iconSize: [28, 28],
+      iconAnchor: [14, 14]
+    });
+
+    function aturStatusGPS(sedangMencari) {
+      tombolGPS.disabled = sedangMencari;
+      tombolGPS.setAttribute('aria-busy', String(sedangMencari));
+      tombolGPS.innerHTML = sedangMencari
+        ? '<i class="fa-solid fa-spinner fa-spin" aria-hidden="true"></i><span>Mencari...</span>'
+        : '<i class="fa-solid fa-location-crosshairs" aria-hidden="true"></i><span>Titik Saya</span>';
+    }
+
+    function formatJarak(jarakMeter) {
+      if (jarakMeter < 1000) return `${Math.round(jarakMeter)} m`;
+      return `${new Intl.NumberFormat('id-ID', {
+        minimumFractionDigits: 1,
+        maximumFractionDigits: 1
+      }).format(jarakMeter / 1000)} km`;
+    }
+
+    function tampilkanPosisiPengguna(posisi) {
+      const { latitude, longitude, accuracy } = posisi.coords;
+      const titikPengguna = [latitude, longitude];
+      const kantorDesa = tempat.find(t => t.nama === 'Kantor Kepala Desa Setia Mulya');
+      const puskesmas = tempat.find(t => t.nama === 'UPTD Puskesmas Setiamulya');
+      const terdekat = tempat
+        .map(t => ({ fasilitas: t, jarak: map.distance(titikPengguna, [t.lat, t.lng]) }))
+        .sort((a, b) => a.jarak - b.jarak)[0];
+
+      aturStatusGPS(false);
+      if (!kantorDesa || !puskesmas || !terdekat) {
+        alert('Data fasilitas penting belum tersedia, sehingga jarak belum dapat dihitung.');
+        return;
+      }
+
+      if (lingkaranAkurasi) {
+        lingkaranAkurasi.setLatLng(titikPengguna);
+        lingkaranAkurasi.setRadius(accuracy);
+      } else {
+        lingkaranAkurasi = L.circle(titikPengguna, {
+          radius: accuracy,
+          color: '#2563eb',
+          weight: 1.5,
+          fillColor: '#3b82f6',
+          fillOpacity: 0.12,
+          interactive: false
+        });
+      }
+      lingkaranAkurasi.addTo(map);
+
+      if (markerPengguna) {
+        markerPengguna.setLatLng(titikPengguna);
+      } else {
+        markerPengguna = L.marker(titikPengguna, {
+          icon: ikonPengguna,
+          title: 'Posisi Anda Saat Ini',
+          zIndexOffset: 1000
+        });
+      }
+      markerPengguna.addTo(map);
+
+      const jarakKantor = map.distance(titikPengguna, [kantorDesa.lat, kantorDesa.lng]);
+      const jarakPuskesmas = map.distance(titikPengguna, [puskesmas.lat, puskesmas.lng]);
+      const isiPopup =
+        `<div class="popup-gps"><h3>Posisi Anda Saat Ini</h3>` +
+        `<p><strong>Kantor Desa:</strong> ${formatJarak(jarakKantor)}</p>` +
+        `<p><strong>Puskesmas:</strong> ${formatJarak(jarakPuskesmas)}</p>` +
+        `<p><strong>Fasilitas terdekat:</strong><br>${terdekat.fasilitas.nama} — ${formatJarak(terdekat.jarak)}</p></div>`;
+
+      if (markerPengguna.getPopup()) {
+        markerPengguna.getPopup().setContent(isiPopup);
+      } else {
+        markerPengguna.bindPopup(isiPopup, { autoPan: false });
+      }
+      markerPengguna.openPopup();
+      map.flyTo(titikPengguna, 16);
+    }
+
+    function cariPosisiPengguna() {
+      if (!navigator.geolocation) {
+        alert('Browser tidak mendukung GPS. Coba buka peta di browser yang mendukung lokasi.');
+        return;
+      }
+
+      aturStatusGPS(true);
+      navigator.geolocation.getCurrentPosition(
+        tampilkanPosisiPengguna,
+        error => {
+          aturStatusGPS(false);
+          const pesan = error.code === error.PERMISSION_DENIED
+            ? 'Izin lokasi ditolak. Aktifkan GPS dan izinkan akses lokasi di browser, lalu coba lagi.'
+            : 'Lokasi belum berhasil ditemukan. Pastikan GPS aktif dan coba lagi.';
+          alert(pesan);
+        },
+        { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
+      );
+    }
+
+    const kontrolGPS = L.control({ position: 'topleft' });
+    kontrolGPS.onAdd = () => {
+      const container = L.DomUtil.create('div', 'gps-control');
+      tombolGPS = L.DomUtil.create('button', 'gps-control-button', container);
+      tombolGPS.type = 'button';
+      tombolGPS.innerHTML = '<i class="fa-solid fa-location-crosshairs" aria-hidden="true"></i><span>Titik Saya</span>';
+      L.DomEvent.disableClickPropagation(container);
+      L.DomEvent.disableScrollPropagation(container);
+      L.DomEvent.on(tombolGPS, 'click', cariPosisiPengguna);
+      return container;
+    };
+    kontrolGPS.addTo(map);
 
     function tampilkan() {
       const kata = cariEl.value.trim().toLowerCase();
@@ -294,7 +1023,7 @@
 
         const h = document.createElement('div');
         h.className = 'grup';
-        h.innerHTML = `<i style="background:${WARNA[j]}"></i>${j}`;
+        h.innerHTML = `<i class="${IKON[j]}" style="color:${WARNA[j]}" aria-hidden="true"></i>${j}`;
         listEl.appendChild(h);
 
         isi.forEach(t => {
@@ -314,6 +1043,157 @@
     jenisEl.addEventListener('change', tampilkan);
     tampilkan();
     map.fitBounds(L.latLngBounds(tempat.map(t => [t.lat, t.lng])).pad(0.15));
+
+    const tombolBukaProfil = document.getElementById('buka-profil');
+    const modalProfil = document.getElementById('modal-profil');
+    const tombolTutupProfil = document.getElementById('tutup-profil');
+    const daftarStatistik = document.getElementById('statistik-fasilitas');
+
+    document.getElementById('nilai-luas').textContent = PROFIL_DESA.luasWilayah;
+    document.getElementById('nilai-penduduk').textContent = PROFIL_DESA.jumlahPenduduk;
+    document.getElementById('nilai-administratif').textContent = PROFIL_DESA.wilayahAdministratif;
+    document.getElementById('nilai-lokasi').textContent = `${tempat.length} Lokasi`;
+
+    daftarStatistik.innerHTML = Object.keys(WARNA).map(jenis => {
+      const jumlah = tempat.filter(t => t.jenis === jenis).length;
+      const persentase = tempat.length ? (jumlah / tempat.length) * 100 : 0;
+      return `
+        <div class="statistik-baris">
+          <div class="statistik-info">
+            <span class="statistik-nama"><i class="${IKON[jenis]}" style="color:${WARNA[jenis]}" aria-hidden="true"></i>${jenis}</span>
+            <strong class="statistik-jumlah">${jumlah}</strong>
+          </div>
+          <div class="statistik-latar" role="progressbar" aria-label="${jenis}" aria-valuemin="0" aria-valuemax="${tempat.length}" aria-valuenow="${jumlah}">
+            <div class="statistik-isi" style="width:${persentase}%;background:${WARNA[jenis]}"></div>
+          </div>
+        </div>`;
+    }).join('');
+
+    function bukaModalProfil() {
+      modalProfil.classList.add('is-open');
+      modalProfil.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('modal-terbuka');
+      tombolTutupProfil.focus();
+    }
+
+    function tutupModalProfil() {
+      modalProfil.classList.remove('is-open');
+      modalProfil.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('modal-terbuka');
+      tombolBukaProfil.focus();
+    }
+
+    tombolBukaProfil.addEventListener('click', bukaModalProfil);
+    tombolTutupProfil.addEventListener('click', tutupModalProfil);
+    modalProfil.addEventListener('click', event => {
+      if (event.target === modalProfil) tutupModalProfil();
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && modalProfil.classList.contains('is-open')) {
+        tutupModalProfil();
+      }
+    });
+
+    const tombolBukaKontak = document.getElementById('buka-kontak');
+    const modalKontak = document.getElementById('modal-kontak');
+    const tombolTutupKontak = document.getElementById('tutup-kontak');
+    const daftarKontak = document.getElementById('daftar-kontak');
+    const layananKontak = tempat
+      .map((layanan, index) => ({ layanan, index }))
+      .filter(({ layanan }) => layanan.wa || layanan.telp || layanan.darurat);
+
+    daftarKontak.innerHTML = layananKontak.map(({ layanan, index }) => {
+      const nomorWhatsApp = layanan.wa ? layanan.wa.replace(/\D/g, '') : '';
+      const nomorTelepon = layanan.telp ? layanan.telp.replace(/[^0-9+]/g, '') : '';
+      const aksiWhatsApp = nomorWhatsApp
+        ? `<a class="kontak-tombol kontak-tombol-whatsapp" href="https://wa.me/${nomorWhatsApp}?text=Halo%20${encodeURIComponent(layanan.nama)},%20saya%20melihat%20informasi%20dari%20Peta%20Digital%20Desa%20Setia%20Mulya." target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i>WhatsApp</a>`
+        : '';
+      const infoTelepon = nomorTelepon
+        ? `<div class="kontak-nomor"><i class="fa-solid fa-phone" aria-hidden="true"></i><span>No. Telp: <strong>${layanan.telp}</strong></span><button class="kontak-tombol kontak-tombol-salin" type="button" data-tempat-index="${index}"><i class="fa-regular fa-copy" aria-hidden="true"></i>Salin Nomor</button></div>`
+        : '';
+      const kontakBelumTersedia = !nomorWhatsApp && !nomorTelepon
+        ? '<span class="kontak-ketiadaan">Kontak langsung belum tersedia</span>'
+        : '';
+
+      return `
+        <article class="kontak-kartu">
+          <div class="kontak-info">
+            <h4 class="kontak-nama">${layanan.nama}</h4>
+            <span class="kontak-kategori">${layanan.jenis}</span>
+            <p class="kontak-rincian">${layanan.alamat || 'Alamat belum tersedia'}<br>${layanan.jam || 'Jam operasional belum tersedia'}</p>
+            ${infoTelepon}
+            ${kontakBelumTersedia}
+          </div>
+          <div class="kontak-aksi">
+            ${aksiWhatsApp}
+            <button class="kontak-tombol kontak-tombol-peta" type="button" data-tempat-index="${index}">
+              <i class="fa-solid fa-map-location-dot" aria-hidden="true"></i>Lihat di Peta
+            </button>
+          </div>
+        </article>`;
+    }).join('');
+
+    function bukaModalKontak() {
+      modalKontak.classList.add('is-open');
+      modalKontak.setAttribute('aria-hidden', 'false');
+      document.body.classList.add('modal-terbuka');
+      tombolTutupKontak.focus();
+    }
+
+    function tutupModalKontak() {
+      modalKontak.classList.remove('is-open');
+      modalKontak.setAttribute('aria-hidden', 'true');
+      document.body.classList.remove('modal-terbuka');
+      tombolBukaKontak.focus();
+    }
+
+    tombolBukaKontak.addEventListener('click', bukaModalKontak);
+    tombolTutupKontak.addEventListener('click', tutupModalKontak);
+    modalKontak.addEventListener('click', event => {
+      if (event.target === modalKontak) tutupModalKontak();
+    });
+    daftarKontak.addEventListener('click', async event => {
+      const tombolSalin = event.target.closest('.kontak-tombol-salin');
+      if (tombolSalin) {
+        const layanan = tempat[Number(tombolSalin.dataset.tempatIndex)];
+        if (!layanan || !layanan.telp) return;
+        if (!navigator.clipboard || !navigator.clipboard.writeText) {
+          alert('Clipboard tidak tersedia. Silakan salin nomor telepon secara manual.');
+          return;
+        }
+
+        try {
+          await navigator.clipboard.writeText(layanan.telp);
+        } catch (error) {
+          console.error('Gagal menyalin nomor telepon', error);
+          alert('Nomor telepon gagal disalin. Silakan salin nomor secara manual.');
+          return;
+        }
+
+        const labelAwal = tombolSalin.innerHTML;
+        tombolSalin.textContent = 'Tersalin!';
+        window.setTimeout(() => {
+          if (tombolSalin.isConnected) tombolSalin.innerHTML = labelAwal;
+        }, 2000);
+        return;
+      }
+
+      const tombolLihat = event.target.closest('.kontak-tombol-peta');
+      if (!tombolLihat) return;
+
+      const layanan = tempat[Number(tombolLihat.dataset.tempatIndex)];
+      if (!layanan) return;
+
+      tutupModalKontak();
+      if (!map.hasLayer(layanan.marker)) layanan.marker.addTo(map);
+      map.flyTo([layanan.lat, layanan.lng], 17, { duration: 0.8 });
+      layanan.marker.openPopup();
+    });
+    document.addEventListener('keydown', event => {
+      if (event.key === 'Escape' && modalKontak.classList.contains('is-open')) {
+        tutupModalKontak();
+      }
+    });
   </script>
 </body>
 </html>
