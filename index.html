@@ -211,14 +211,6 @@
       from { transform: scale(1); box-shadow: 0 1px 5px rgba(15,23,42,.35); }
       to { transform: scale(1.28); box-shadow: 0 0 0 9px rgba(37,99,235,.2), 0 2px 12px rgba(15,23,42,.4); }
     }
-    .map-control-stack { display: grid; gap: 7px; border: 0; background: transparent; box-shadow: none; }
-    .focus-desa-button {
-      display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 9px 12px;
-      border: 1px solid #cbd5e1; border-radius: 9px; background: #fff; color: #334155;
-      box-shadow: 0 2px 6px rgba(15,23,42,.14); font: 700 .75rem 'Plus Jakarta Sans',sans-serif; cursor: pointer; white-space: nowrap;
-    }
-    .focus-desa-button:hover { background: #f8fafc; color: #1d4ed8; }
-    .focus-desa-button:focus-visible { outline: 3px solid #bfdbfe; outline-offset: 2px; }
     .gps-control { border: 0; background: transparent; box-shadow: none; }
     .gps-control-button {
       display: flex;
@@ -514,7 +506,6 @@
       .leaflet-top.leaflet-left { top: 6px; left: 6px; }
       .leaflet-top.leaflet-left .leaflet-control { margin-top: 6px; margin-left: 6px; }
       .leaflet-control-zoom a { width: 40px; height: 40px; line-height: 40px; font-size: 1.3rem; }
-      .gps-control-button, .focus-desa-button { min-height: 44px; padding: 10px 12px; font-size: 0.8rem; }
       .tools { order: 1; }
       .quick-filters {
         display: flex; order: 2; flex: 0 0 auto; gap: 7px; overflow-x: auto; padding: 1px 12px 8px;
@@ -1128,28 +1119,17 @@
       );
     }
 
-    function fokusDesa() {
-      map.closePopup();
-      const bounds = layerBatasDesa.getBounds();
-      if (bounds.isValid()) map.fitBounds(bounds, { padding: [24, 24] });
-    }
-
     const kontrolGPS = L.control({ position: 'topleft' });
     kontrolGPS.onAdd = () => {
-      const container = L.DomUtil.create('div', 'gps-control map-control-stack');
+      const container = L.DomUtil.create('div', 'gps-control');
       tombolGPS = L.DomUtil.create('button', 'gps-control-button', container);
       tombolGPS.type = 'button';
       tombolGPS.innerHTML = '<i class="fa-solid fa-location-crosshairs" aria-hidden="true"></i><span>Titik Saya</span>';
       tombolGPS.title = 'Titik Saya';
-      const tombolFokusDesa = L.DomUtil.create('button', 'focus-desa-button', container);
-      tombolFokusDesa.type = 'button';
-      tombolFokusDesa.title = 'Fokus Desa';
-      tombolFokusDesa.setAttribute('aria-label', 'Fokus Desa');
-      tombolFokusDesa.innerHTML = '<i class="fa-solid fa-expand" aria-hidden="true"></i><span>Fokus Desa</span>';
+      tombolGPS.style.minHeight = '44px';
       L.DomEvent.disableClickPropagation(container);
       L.DomEvent.disableScrollPropagation(container);
       L.DomEvent.on(tombolGPS, 'click', cariPosisiPengguna);
-      L.DomEvent.on(tombolFokusDesa, 'click', fokusDesa);
       return container;
     };
     kontrolGPS.addTo(map);
