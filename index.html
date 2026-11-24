@@ -72,6 +72,14 @@
     }
     .tombol-kontak:hover { background: #b91c1c; box-shadow: 0 2px 6px rgba(220, 38, 38, 0.22); }
     .tombol-kontak:focus-visible { outline: 3px solid #fca5a5; outline-offset: 2px; }
+    .tombol-bagikan {
+      display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 9px 12px;
+      border: 1px solid #cbd5e1; border-radius: 8px; background: #ffffff; color: #334155;
+      font: 600 0.78rem 'Plus Jakarta Sans', sans-serif; cursor: pointer; white-space: nowrap;
+      transition: background .18s ease, border-color .18s ease, color .18s ease;
+    }
+    .tombol-bagikan:hover { border-color: #94a3b8; background: #f8fafc; color: #0f172a; }
+    .tombol-bagikan:focus-visible { outline: 3px solid #bfdbfe; outline-offset: 2px; }
 
     .wrap { flex: 1; display: flex; min-height: 0; }
     #map { flex: 1; }
@@ -96,6 +104,16 @@
       color: #1e293b;
     }
     .tools select { margin-top: 6px; }
+    .search-input-wrap { position: relative; width: 100%; }
+    .search-input-wrap input { padding-right: 40px; }
+    .clear-search {
+      position: absolute; top: 50%; right: 7px; display: grid; width: 28px; height: 28px;
+      place-items: center; transform: translateY(-50%); border: 0; border-radius: 50%;
+      background: transparent; color: #64748b; font: 500 1.2rem/1 sans-serif; cursor: pointer;
+    }
+    .clear-search:hover, .clear-search:focus-visible { background: #e2e8f0; color: #0f172a; }
+    .clear-search:focus-visible { outline: 2px solid #2563eb; outline-offset: 1px; }
+    .clear-search[hidden] { display: none; }
     .sheet-toggle, .legenda-zonasi-toggle { display: none; }
     .quick-filters { display: none; }
 
@@ -133,9 +151,21 @@
       line-height: 1.4;
     }
 
-    .leaflet-popup-content { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.82rem; margin: 10px 12px; }
-    .leaflet-popup-content h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.95rem; margin-bottom: 3px; }
-    .popup-kriteria { display: inline-block; margin: 0 0 5px; padding: 3px 7px; border-radius: 999px; background: #f1f5f9; color: #475569; font-size: 0.7rem; line-height: 1.35; }
+    .leaflet-popup-content-wrapper { border-radius: 14px; box-shadow: 0 12px 34px rgba(15,23,42,.18); }
+    .leaflet-popup-tip { box-shadow: 0 8px 14px rgba(15,23,42,.12); }
+    .leaflet-popup-content { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.82rem; margin: 12px 14px; }
+    .leaflet-popup-content h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.98rem; margin-bottom: 7px; color: #0f172a; }
+    .popup-meta { display: flex; flex-wrap: wrap; align-items: center; gap: 6px; margin-bottom: 8px; }
+    .popup-kategori { display: inline-flex; align-items: center; padding: 4px 9px; border-radius: 999px; color: #fff; font-size: 0.68rem; font-weight: 700; line-height: 1.3; }
+    .popup-kriteria { display: inline-block; margin: 0 0 7px; padding: 4px 8px; border-radius: 8px; background: #f1f5f9; color: #475569; font-size: 0.7rem; line-height: 1.4; }
+    .status-buka { display: inline-flex !important; align-items: center; gap: 4px; width: fit-content; padding: 3px 7px; border-radius: 999px; font-size: 0.68rem !important; font-weight: 700; line-height: 1.25; white-space: nowrap; }
+    .status-buka .status-titik { font-size: 0.7rem; }
+    .status-buka.is-open { background: #dcfce7; color: #166534; }
+    .status-buka.is-closed { background: #f1f5f9; color: #64748b; }
+    .baris-heading { display: flex; align-items: flex-start; justify-content: space-between; gap: 7px; }
+    .baris .nama-tempat { color: #0f172a; font-size: 0.83rem; font-weight: 700; line-height: 1.35; }
+    .baris .status-buka { flex: 0 0 auto; margin-top: 1px; }
+    .popup-jarak { color: #0f766e !important; font-weight: 700; }
     .leaflet-popup-content img { display: block; width: 100%; height: 130px; object-fit: cover; margin-bottom: 6px; }
     .leaflet-popup-content p { margin: 2px 0; color: #334155; }
     .leaflet-popup-content a { color: #1d4ed8; }
@@ -174,6 +204,21 @@
     button.legenda-zonasi-item:hover { color: #1d4ed8; }
     .legenda-zonasi-item + .legenda-zonasi-item { margin-top: 4px; }
     .legenda-zonasi-swatch { width: 11px; height: 11px; flex: 0 0 11px; margin-top: 2px; border: 1px solid rgba(15, 23, 42, 0.2); border-radius: 3px; }
+    .marker-fasilitas { border: 0; background: transparent; }
+    .marker-pin { transition: transform .2s ease, box-shadow .2s ease; }
+    .marker-terpilih .marker-pin { animation: marker-sorot 850ms ease-in-out infinite alternate; }
+    @keyframes marker-sorot {
+      from { transform: scale(1); box-shadow: 0 1px 5px rgba(15,23,42,.35); }
+      to { transform: scale(1.28); box-shadow: 0 0 0 9px rgba(37,99,235,.2), 0 2px 12px rgba(15,23,42,.4); }
+    }
+    .map-control-stack { display: grid; gap: 7px; border: 0; background: transparent; box-shadow: none; }
+    .focus-desa-button {
+      display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 42px; padding: 9px 12px;
+      border: 1px solid #cbd5e1; border-radius: 9px; background: #fff; color: #334155;
+      box-shadow: 0 2px 6px rgba(15,23,42,.14); font: 700 .75rem 'Plus Jakarta Sans',sans-serif; cursor: pointer; white-space: nowrap;
+    }
+    .focus-desa-button:hover { background: #f8fafc; color: #1d4ed8; }
+    .focus-desa-button:focus-visible { outline: 3px solid #bfdbfe; outline-offset: 2px; }
     .gps-control { border: 0; background: transparent; box-shadow: none; }
     .gps-control-button {
       display: flex;
@@ -220,7 +265,7 @@
     .modal-overlay {
       position: fixed;
       inset: 0;
-      z-index: 2000;
+      z-index: 2500;
       display: flex;
       visibility: hidden;
       opacity: 0;
@@ -247,7 +292,7 @@
     }
     .modal-overlay.is-open .modal-kartu { opacity: 1; transform: translateY(0) scale(1); }
     .toast {
-      position: fixed; z-index: 3000; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+      position: fixed; z-index: 3500; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom, 0px));
       max-width: min(92vw, 440px); padding: 11px 16px; border: 1px solid rgba(255,255,255,.14);
       border-radius: 12px; background: #0f172a; color: #fff; box-shadow: 0 10px 28px rgba(15,23,42,.25);
       font-size: .82rem; line-height: 1.45; text-align: center; opacity: 0; pointer-events: none;
@@ -405,14 +450,15 @@
       header p { display: none; }
       .logo-desa { height: 34px; }
       .logo-universitas { display: block; height: 32px; max-width: 32px; }
-      .tombol-profil, .tombol-kontak {
+      .tombol-profil, .tombol-kontak, .tombol-bagikan {
         width: 36px; height: 36px; flex: 0 0 36px; padding: 0; border-radius: 50%;
         font-size: 0.9rem; gap: 0;
       }
-      .tombol-profil span, .tombol-kontak span { display: none; }
-      .tombol-profil, .tombol-kontak { position: relative; }
+      .tombol-profil span, .tombol-kontak span, .tombol-bagikan span { display: none; }
+      .tombol-profil, .tombol-kontak, .tombol-bagikan { position: relative; }
       .tombol-profil[title]:hover::after, .tombol-profil[title]:focus-visible::after,
-      .tombol-kontak[title]:hover::after, .tombol-kontak[title]:focus-visible::after {
+      .tombol-kontak[title]:hover::after, .tombol-kontak[title]:focus-visible::after,
+      .tombol-bagikan[title]:hover::after, .tombol-bagikan[title]:focus-visible::after {
         position: absolute; z-index: 1200; top: calc(100% + 8px); right: 0;
         width: max-content; max-width: 220px; padding: 6px 9px; border-radius: 7px;
         background: #0f172a; color: white; content: attr(title); font: 500 0.68rem/1.3 'Plus Jakarta Sans', sans-serif;
@@ -451,14 +497,24 @@
       }
       aside:not(.is-expanded) { height: calc(178px + env(safe-area-inset-bottom, 0px)); }
       .sheet-toggle {
-        display: flex; width: 100%; height: 29px; flex: 0 0 29px; align-items: center; justify-content: center;
-        border: 0; background: transparent; cursor: pointer; touch-action: manipulation;
+        display: flex; width: 100%; min-height: 42px; flex: 0 0 42px; flex-direction: column; align-items: center; justify-content: center; gap: 5px;
+        border: 0; background: transparent; color: #475569; cursor: pointer; touch-action: pan-y; font: inherit;
       }
       .sheet-handle { display: block; width: 38px; height: 4px; border-radius: 99px; background: #94a3b8; }
-      .tools { display: flex; align-items: center; gap: 8px; padding: 4px 12px 10px; border-bottom: 1px solid rgba(226,232,240,.85); }
+      aside.is-expanded .sheet-toggle {
+        min-height: 40px; flex-basis: 40px; flex-direction: row; gap: 9px; border-bottom: 1px solid #e2e8f0;
+        color: #1d4ed8; cursor: pointer;
+      }
+      aside.is-expanded .sheet-handle { width: 26px; background: #64748b; }
+      .tools { display: flex; align-items: center; gap: 8px; padding: 4px 12px 10px; border-bottom: 1px solid rgba(226,232,240,.85); touch-action: pan-y; }
+      .search-input-wrap { flex: 1 1 60%; min-width: 0; }
       .tools input, .tools select { min-width: 0; height: 42px; font-size: 0.83rem; }
-      .tools input { flex: 1 1 60%; }
+      .tools input { width: 100%; }
       .tools select { flex: 0 1 40%; margin-top: 0; }
+      .leaflet-top.leaflet-left { top: 6px; left: 6px; }
+      .leaflet-top.leaflet-left .leaflet-control { margin-top: 6px; margin-left: 6px; }
+      .leaflet-control-zoom a { width: 40px; height: 40px; line-height: 40px; font-size: 1.3rem; }
+      .gps-control-button, .focus-desa-button { min-height: 44px; padding: 10px 12px; font-size: 0.8rem; }
       .tools { order: 1; }
       .quick-filters {
         display: flex; order: 2; flex: 0 0 auto; gap: 7px; overflow-x: auto; padding: 1px 12px 8px;
@@ -466,10 +522,11 @@
       }
       .quick-filters::-webkit-scrollbar { display: none; }
       .filter-chip {
-        flex: 0 0 auto; padding: 7px 11px; border: 1px solid #dbe3ee; border-radius: 999px;
+        min-height: 36px; flex: 0 0 auto; padding: 7px 11px; border: 1px solid #dbe3ee; border-radius: 999px;
         background: rgba(255,255,255,.9); color: #475569; font: 600 .7rem 'Plus Jakarta Sans', sans-serif; cursor: pointer;
       }
       .filter-chip[aria-pressed="true"] { border-color: #1d4ed8; background: #eff6ff; color: #1d4ed8; }
+      .filter-count { display: inline-grid !important; min-width: 18px; height: 18px; place-items: center; padding: 0 4px; border-radius: 999px; background: rgba(148,163,184,.16); color: inherit !important; font-size: .62rem !important; font-weight: 700; }
       #list { display: none; order: 4; }
       .catatan {
         display: block; order: 3; flex: 0 0 auto; padding: 0 12px 9px; border-top: 0;
@@ -506,6 +563,10 @@
       </div>
     </div>
     <div class="header-kanan">
+      <button class="tombol-bagikan" id="bagikan-peta" type="button" title="Bagikan Peta" aria-label="Bagikan Peta">
+        <i class="fa-solid fa-share-nodes" aria-hidden="true"></i>
+        <span>Bagikan Peta</span>
+      </button>
       <button class="tombol-kontak" id="buka-kontak" type="button" title="Kontak & Darurat" aria-label="Kontak & Darurat">
         <i class="fa-solid fa-phone-volume" aria-hidden="true"></i>
         <span>Kontak &amp; Darurat</span>
@@ -620,7 +681,10 @@
     <aside id="panel-tempat">
       <button class="sheet-toggle" id="sheet-toggle" type="button" aria-label="Buka daftar tempat" aria-expanded="false"><span class="sheet-handle" aria-hidden="true"></span></button>
       <div class="tools">
-        <input type="search" id="cari" placeholder="Cari tempat..." aria-label="Cari tempat" />
+        <div class="search-input-wrap" id="search-input-wrap">
+          <input type="search" id="cari" placeholder="Cari tempat..." aria-label="Cari tempat" />
+          <button class="clear-search" id="bersihkan-cari" type="button" aria-label="Hapus pencarian" title="Hapus pencarian" hidden>&times;</button>
+        </div>
         <select id="jenis"></select>
       </div>
       <div class="quick-filters" id="quick-filters" aria-label="Filter kategori populer"></div>
@@ -757,8 +821,8 @@
     // Tambah tempat baru: salin satu blok, isi, taruh sebelum penutup ]
     // foto: taruh gambar di folder "foto" sebelah file ini dengan nama sesuai isian di bawah
     const tempat = [
-      { nama: "Kantor Kepala Desa Setia Mulya", jenis: "Pemerintahan", kriteria: "Pusat Pemerintahan Desa & Administrasi Publik", lat: -6.1477082, lng: 106.9908815, foto: "foto/kantor-desa.jpg", alamat: "VX2R+W96, Jl. Taruma Jaya Bks, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", telp: "(021) 6073 9845", darurat: true },
-      { nama: "UPTD Puskesmas Setiamulya", jenis: "Kesehatan", kriteria: "Fasilitas Kesehatan Tingkat Pertama (FKTP) Pemerintah / Puskesmas", lat: -6.1478786, lng: 106.991002, foto: "foto/puskesmas.jpg", alamat: "Jl. Taruma Jaya No.168, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", jam: "Senin-Kamis (07.45-15.00), Jumat (07.45-14.30), Sabtu (07.45-14.00)", darurat: true },
+      { nama: "Kantor Kepala Desa Setia Mulya", jenis: "Pemerintahan", kriteria: "Pusat Pemerintahan Desa & Administrasi Publik", kataKunci: "balai desa, kantor desa, kelurahan, kades, administrasi", lat: -6.1477082, lng: 106.9908815, foto: "foto/kantor-desa.jpg", alamat: "VX2R+W96, Jl. Taruma Jaya Bks, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", telp: "(021) 6073 9845", darurat: true },
+      { nama: "UPTD Puskesmas Setiamulya", jenis: "Kesehatan", kriteria: "Fasilitas Kesehatan Tingkat Pertama (FKTP) Pemerintah / Puskesmas", kataKunci: "puskesmas, klinik, dokter, berobat, kesehatan, igd", lat: -6.1478786, lng: 106.991002, foto: "foto/puskesmas.jpg", alamat: "Jl. Taruma Jaya No.168, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", jam: "Senin-Kamis (07.45-15.00), Jumat (07.45-14.30), Sabtu (07.45-14.00)", darurat: true },
       { nama: "Praktek Dokter Umum & Gigi Jasmine Medika", jenis: "Kesehatan", kriteria: "Klinik Pratama / Praktik Dokter Umum & Dokter Gigi", lat: -6.14315, lng: 106.991305, alamat: "Jl. Tarumajaya Raya No.49, Setiamulya, Tarumajaya, Kabupaten Bekasi 17214", jam: "Senin-Kamis & Sabtu (08.00-14.00, 17.00-22.00), Jumat (08.00-11.30, 17.00-22.00)" },
       { nama: "Bidan Desi Novianingsih. SST", jenis: "Kesehatan", kriteria: "Praktik Mandiri Bidan (Kesehatan Ibu & Anak / KIA)", lat: -6.14515, lng: 106.990515, alamat: "Jl. Tarumajaya Raya, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", jam: "Setiap hari (07.00-22.00)" },
       { nama: "Klinik Bidan Aisyah Astri", jenis: "Kesehatan", kriteria: "Klinik Kebidanan & Layanan Kesehatan Ibu-Anak", lat: -6.12475, lng: 106.9905, alamat: "VXGR+35G, Jl. Syarif Hidayatullah, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17216" },
@@ -813,25 +877,22 @@
       { nama: "Warung Sambel Ijo HM", jenis: "UMKM", kriteria: "UMKM Kuliner Rumahan (Zona Harapan Mulya)", lat: -6.13825, lng: 106.994015, alamat: "26 HM, Jl. Harapan Mulya Raya No.09, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213" },
       { nama: "Warung Kebun Kita WKK", jenis: "UMKM", kriteria: "UMKM Warung Makan & Kuliner Santai", lat: -6.13485, lng: 106.990775, alamat: "Jl. Taruma Jaya No.16C, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", jam: "Senin-Jumat (08.00-21.00), Sabtu-Minggu (08.00-22.00)" },
       { nama: "Seafood Mini Jaya", jenis: "UMKM", kriteria: "UMKM Kuliner Seafood", lat: -6.13035, lng: 106.991475, alamat: "Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", jam: "Setiap hari (11.00-23.00)" },
-      { nama: "Tempat Pemakaman Umum", jenis: "Pemakaman", kriteria: "Tempat Pemakaman Umum (TPU) Desa", lat: -6.1365, lng: 106.991075, foto: "foto/tpu.jpg", alamat: "VX7R+9CC, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213" },
-      { nama: "Balai Warga", jenis: "Layanan Warga & RW", kriteria: "Balai Pertemuan & Layanan Sosial Warga Tingkat RW/Perumahan", lat: -6.13565, lng: 106.992915, alamat: "Jl. Hortensia No.15, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213" }
+      { nama: "Tempat Pemakaman Umum", jenis: "Pemakaman", kriteria: "Tempat Pemakaman Umum (TPU) Desa", kataKunci: "tpu, kuburan, makam", lat: -6.1365, lng: 106.991075, foto: "foto/tpu.jpg", alamat: "VX7R+9CC, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213" },
+      { nama: "Balai Warga", jenis: "Layanan Warga & RW", kriteria: "Balai Pertemuan & Layanan Sosial Warga Tingkat RW/Perumahan", kataKunci: "balai rw, aula warga, pertemuan", lat: -6.13565, lng: 106.992915, alamat: "Jl. Hortensia No.15, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213" }
     ];
     const listEl = document.getElementById('list');
     const cariEl = document.getElementById('cari');
     const jenisEl = document.getElementById('jenis');
     const quickFiltersEl = document.getElementById('quick-filters');
-    const kategoriPopuler = [
-      'Pemerintahan', 'Kesehatan', 'Pendidikan', 'Tempat Ibadah',
-      'Toko & Layanan', 'Layanan Warga & RW'
-    ];
+    const kategoriPopuler = Object.keys(WARNA);
 
     jenisEl.innerHTML = '<option value="">Semua jenis tempat</option>' +
       Object.keys(WARNA).map(j => `<option>${j}</option>`).join('');
-    quickFiltersEl.innerHTML = [
-      ['Semua', ''], ...kategoriPopuler.map(kategori => [kategori, kategori])
-    ].map(([label, value]) =>
-      `<button class="filter-chip" type="button" data-filter="${value}" aria-pressed="${value === ''}">${label}</button>`
-    ).join('');
+    const daftarChip = [['Semua', ''], ...kategoriPopuler.map(kategori => [kategori, kategori])];
+    quickFiltersEl.innerHTML = daftarChip.map(([label, value]) => {
+      const jumlah = value ? tempat.filter(t => t.jenis === value).length : tempat.length;
+      return `<button class="filter-chip" type="button" data-filter="${value}" aria-pressed="${value === ''}"><span>${label}</span><span class="filter-count">${jumlah}</span></button>`;
+    }).join('');
 
     function sinkronkanChip() {
       quickFiltersEl.querySelectorAll('.filter-chip').forEach(chip => {
@@ -852,15 +913,70 @@
       aturSheet(true);
     });
 
-    tempat.forEach(t => {
-      const ikon = L.divIcon({
-        className: '',
-        html: `<div style="width:28px;height:28px;border-radius:50%;background:${WARNA[t.jenis]};border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;line-height:1"><i class="${IKON[t.jenis]}" aria-hidden="true"></i></div>`,
-        iconSize: [28, 28],
-        iconAnchor: [14, 14]
-      });
-      t.marker = L.marker([t.lat, t.lng], { icon: ikon, title: t.nama });
+    let tombolGPS;
+    let markerTerpilih = null;
+    let posisiPenggunaAktif = null;
 
+    function cekStatusBuka(jamStr) {
+      if (!jamStr) return false;
+      const teks = jamStr.toLocaleLowerCase('id-ID');
+      if (/\b24\s*jam\b/.test(teks)) return true;
+
+      const hariMap = { minggu: 0, senin: 1, selasa: 2, rabu: 3, kamis: 4, jumat: 5, sabtu: 6 };
+      const sekarang = new Date();
+      const menitSekarang = sekarang.getHours() * 60 + sekarang.getMinutes();
+      const grupJadwal = [...teks.matchAll(/(setiap\s+hari|(?:senin|selasa|rabu|kamis|jumat|sabtu|minggu)[^()]*?)\s*\(([^()]*)\)/gi)];
+
+      for (const grup of grupJadwal) {
+        const spesifikasiHari = grup[1].trim();
+        let hariAktif = [];
+        if (/^setiap\s+hari$/.test(spesifikasiHari)) {
+          hariAktif = [0, 1, 2, 3, 4, 5, 6];
+        } else {
+          const bagianHari = spesifikasiHari.split(/[,/&+]/).map(bagian => bagian.trim()).filter(Boolean);
+          for (const bagian of bagianHari) {
+            const namaHari = bagian.match(/minggu|senin|selasa|rabu|kamis|jumat|sabtu/gi) || [];
+            if (!namaHari.length) continue;
+            const awal = hariMap[namaHari[0].toLocaleLowerCase('id-ID')];
+            const akhir = hariMap[namaHari[namaHari.length - 1].toLocaleLowerCase('id-ID')];
+            if (namaHari.length > 1 && /[-\u2013]/.test(bagian)) {
+              let hari = awal;
+              hariAktif.push(hari);
+              while (hari !== akhir && hariAktif.length <= 7) {
+                hari = (hari + 1) % 7;
+                hariAktif.push(hari);
+              }
+            } else {
+              namaHari.forEach(nama => hariAktif.push(hariMap[nama.toLocaleLowerCase('id-ID')]));
+            }
+          }
+        }
+        if (!hariAktif.includes(sekarang.getDay())) continue;
+
+        const rentangJam = [...grup[2].matchAll(/(\d{1,2}[.:]\d{2})\s*[-\u2013]\s*(\d{1,2}[.:]\d{2})/g)];
+        for (const rentang of rentangJam) {
+          const keMenit = nilai => {
+            const [jam, menit] = nilai.split(/[.:]/).map(Number);
+            return jam * 60 + menit;
+          };
+          const mulai = keMenit(rentang[1]);
+          const selesai = keMenit(rentang[2]);
+          const sedangBuka = mulai <= selesai
+            ? menitSekarang >= mulai && menitSekarang < selesai
+            : menitSekarang >= mulai || menitSekarang < selesai;
+          if (sedangBuka) return true;
+        }
+      }
+      return false;
+    }
+
+    function badgeStatusBuka(t, index) {
+      if (!t.jam) return '';
+      const buka = cekStatusBuka(t.jam);
+      return `<span class="status-buka ${buka ? 'is-open' : 'is-closed'}" data-status-index="${index}"><span class="status-titik" aria-hidden="true">&#9679;</span>${buka ? 'Buka' : 'Tutup'}</span>`;
+    }
+
+    function buatIsiPopupTempat(t, index) {
       const baris = [
         t.alamat && `<p>${t.alamat}</p>`,
         t.jam && `<p>Jam: ${t.jam}</p>`,
@@ -873,18 +989,42 @@
         ? `<a class="popup-action-whatsapp" href="https://wa.me/${t.wa}?text=Halo%20${encodeURIComponent(t.nama)},%20saya%20melihat%20informasi%20dari%20Peta%20Digital%20Desa%20Setia%20Mulya." target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i>Hubungi via WhatsApp</a>`
         : '';
       const urlPeta = `https://www.google.com/maps/search/?api=1&query=${t.lat},${t.lng}`;
+      const jarakDariSaya = posisiPenggunaAktif
+        ? `<p class="popup-jarak"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> ${formatJarak(map.distance(posisiPenggunaAktif, [t.lat, t.lng]))} dari Titik Saya</p>`
+        : '';
+      return `${foto}<h3>${t.nama}</h3>` +
+        `<div class="popup-meta"><span class="popup-kategori" style="background:${WARNA[t.jenis]}">${t.jenis}</span>${badgeStatusBuka(t, index)}</div>` +
+        `${t.kriteria ? `<span class="popup-kriteria">${t.kriteria}</span>` : ''}${baris}${jarakDariSaya}` +
+        `<div class="popup-actions"><a class="popup-action-arah" href="https://www.google.com/maps/dir/?api=1&destination=${t.lat},${t.lng}" target="_blank" rel="noopener"><i class="fa-solid fa-diamond-turn-right" aria-hidden="true"></i>Petunjuk Arah</a><button class="popup-action-share" type="button" data-share-url="${urlPeta}" data-share-title="${t.nama}"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i>Bagikan</button>${aksiWhatsApp}</div>`;
+    }
 
-      t.marker.bindPopup(
-        `${foto}<h3>${t.nama}</h3>${t.kriteria ? `<span class="popup-kriteria">${t.kriteria}</span>` : ""}${baris}` +
-        `<div class="popup-actions"><a class="popup-action-arah" href="https://www.google.com/maps/dir/?api=1&destination=${t.lat},${t.lng}" target="_blank" rel="noopener"><i class="fa-solid fa-diamond-turn-right" aria-hidden="true"></i>Petunjuk Arah</a><button class="popup-action-share" type="button" data-share-url="${urlPeta}" data-share-title="${t.nama}"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i>Bagikan</button>${aksiWhatsApp}</div>`,
-        { minWidth: 220, maxWidth: 260 }
-      );
+    function bersihkanSorotanMarker() {
+      if (!markerTerpilih) return;
+      markerTerpilih.marker.getElement()?.classList.remove('marker-terpilih');
+      markerTerpilih.marker.setZIndexOffset(0);
+      markerTerpilih = null;
+    }
+
+    function sorotMarker(t) {
+      if (markerTerpilih && markerTerpilih !== t) bersihkanSorotanMarker();
+      markerTerpilih = t;
+      if (!map.hasLayer(t.marker)) t.marker.addTo(map);
+      t.marker.setZIndexOffset(1000);
+      t.marker.getElement()?.classList.add('marker-terpilih');
+    }
+
+    tempat.forEach((t, index) => {
+      const ikon = L.divIcon({
+        className: 'marker-fasilitas',
+        html: `<div class="marker-pin" style="width:28px;height:28px;border-radius:50%;background:${WARNA[t.jenis]};border:2px solid #fff;box-shadow:0 1px 4px rgba(0,0,0,.35);display:flex;align-items:center;justify-content:center;color:#fff;font-size:13px;line-height:1"><i class="${IKON[t.jenis]}" aria-hidden="true"></i></div>`,
+        iconSize: [28, 28],
+        iconAnchor: [14, 14]
+      });
+      t.marker = L.marker([t.lat, t.lng], { icon: ikon, title: t.nama });
+      t.marker.bindPopup(() => buatIsiPopupTempat(t, index), { minWidth: 220, maxWidth: 280 });
+      t.marker.on('click', () => sorotMarker(t));
     });
 
-    let tombolGPS;
-    let markerPengguna = null;
-    let lingkaranAkurasi = null;
-    let posisiPenggunaAktif = null;
     const ikonPengguna = L.divIcon({
       className: 'gps-marker',
       html: '<span class="gps-pulse"><span class="gps-pulse-core"></span></span>',
@@ -988,43 +1128,60 @@
       );
     }
 
+    function fokusDesa() {
+      map.closePopup();
+      const bounds = layerBatasDesa.getBounds();
+      if (bounds.isValid()) map.fitBounds(bounds, { padding: [24, 24] });
+    }
+
     const kontrolGPS = L.control({ position: 'topleft' });
     kontrolGPS.onAdd = () => {
-      const container = L.DomUtil.create('div', 'gps-control');
+      const container = L.DomUtil.create('div', 'gps-control map-control-stack');
       tombolGPS = L.DomUtil.create('button', 'gps-control-button', container);
       tombolGPS.type = 'button';
       tombolGPS.innerHTML = '<i class="fa-solid fa-location-crosshairs" aria-hidden="true"></i><span>Titik Saya</span>';
+      tombolGPS.title = 'Titik Saya';
+      const tombolFokusDesa = L.DomUtil.create('button', 'focus-desa-button', container);
+      tombolFokusDesa.type = 'button';
+      tombolFokusDesa.title = 'Fokus Desa';
+      tombolFokusDesa.setAttribute('aria-label', 'Fokus Desa');
+      tombolFokusDesa.innerHTML = '<i class="fa-solid fa-expand" aria-hidden="true"></i><span>Fokus Desa</span>';
       L.DomEvent.disableClickPropagation(container);
       L.DomEvent.disableScrollPropagation(container);
       L.DomEvent.on(tombolGPS, 'click', cariPosisiPengguna);
+      L.DomEvent.on(tombolFokusDesa, 'click', fokusDesa);
       return container;
     };
     kontrolGPS.addTo(map);
 
     function tampilkan() {
-      const kata = cariEl.value.trim().toLowerCase();
+      const kata = cariEl.value.trim().toLocaleLowerCase('id-ID').split(/\s+/).filter(Boolean);
       const jenis = jenisEl.value;
       listEl.innerHTML = '';
-      const cocok = tempat.filter(t =>
-        (!jenis || jenis === t.jenis) &&
-        (t.nama.toLowerCase().includes(kata) || (t.kriteria || '').toLowerCase().includes(kata) || (t.alamat || '').toLowerCase().includes(kata))
-      );
+      const cocok = tempat.filter(t => {
+        const indeks = [t.nama, t.jenis, t.kriteria, t.alamat, t.kataKunci]
+          .filter(Boolean).join(' ').toLocaleLowerCase('id-ID');
+        return (!jenis || jenis === t.jenis) && kata.every(token => indeks.includes(token));
+      });
+      if (markerTerpilih && !cocok.includes(markerTerpilih)) bersihkanSorotanMarker();
       tempat.forEach(t => {
         if (cocok.includes(t)) t.marker.addTo(map); else map.removeLayer(t.marker);
       });
 
       function tambahBaris(t) {
         const d = document.createElement('div');
+        const indexTempat = tempat.indexOf(t);
         d.className = 'baris';
         const jarak = posisiPenggunaAktif
           ? map.distance(posisiPenggunaAktif, [t.lat, t.lng])
           : null;
-        d.innerHTML = t.nama +
+        d.innerHTML = `<div class="baris-heading"><span class="nama-tempat">${t.nama}</span>${badgeStatusBuka(t, indexTempat)}</div>` +
           (posisiPenggunaAktif ? `<span class="jenis-tempat">${t.jenis}</span>` : '') +
           (t.alamat ? `<span>${t.alamat}</span>` : '') +
           (jarak !== null ? `<span class="badge-jarak"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> ${formatJarak(jarak)}</span>` : '');
         d.onclick = () => {
           if (window.matchMedia('(max-width: 768px)').matches) aturSheet(false);
+          sorotMarker(t);
           map.flyTo([t.lat, t.lng], 17, { duration: 0.8 });
           t.marker.openPopup();
         };
@@ -1052,23 +1209,86 @@
       if (!cocok.length) listEl.innerHTML = '<p class="hasil-kosong">Tempat tidak ditemukan.</p>';
     }
 
-    cariEl.addEventListener('input', tampilkan);
     const panelTempat = document.getElementById('panel-tempat');
     const toggleSheet = document.getElementById('sheet-toggle');
     const wrapPeta = document.querySelector('.wrap');
+    const toolsEl = document.querySelector('.tools');
+    const searchWrapEl = document.getElementById('search-input-wrap');
+    const clearSearchButton = document.getElementById('bersihkan-cari');
+
     function aturSheet(terbuka) {
       panelTempat.classList.toggle('is-expanded', terbuka);
       wrapPeta.classList.toggle('sheet-expanded', terbuka);
       toggleSheet.setAttribute('aria-expanded', String(terbuka));
-      toggleSheet.setAttribute('aria-label', terbuka ? 'Tutup daftar tempat' : 'Buka daftar tempat');
+      toggleSheet.setAttribute('aria-label', terbuka ? 'Turunkan daftar tempat' : 'Lihat 58 lokasi');
     }
+
+    function sinkronkanPencarian() {
+      const adaKata = Boolean(cariEl.value.trim());
+      clearSearchButton.hidden = !adaKata;
+      searchWrapEl.classList.toggle('has-query', adaKata);
+      tampilkan();
+      if (adaKata) aturSheet(true);
+    }
+
+    cariEl.addEventListener('input', sinkronkanPencarian);
+    clearSearchButton.addEventListener('click', () => {
+      cariEl.value = '';
+      sinkronkanPencarian();
+      cariEl.focus();
+    });
     toggleSheet.addEventListener('click', () => aturSheet(!panelTempat.classList.contains('is-expanded')));
     cariEl.addEventListener('focus', () => aturSheet(true));
-    cariEl.addEventListener('input', () => { if (cariEl.value.trim()) aturSheet(true); });
     jenisEl.addEventListener('change', () => aturSheet(true));
-    map.on('click', () => {
-      if (window.matchMedia('(max-width: 768px)').matches) aturSheet(false);
-    });
+
+    function pasangGesturSheet(elemen) {
+      let sentuhAwal = null;
+      let sentuhTerakhir = null;
+      let menekanKlikSetelahSwipe = false;
+      elemen.addEventListener('touchstart', event => {
+        if (event.touches.length !== 1) return;
+        sentuhAwal = { x: event.touches[0].clientX, y: event.touches[0].clientY };
+        sentuhTerakhir = sentuhAwal;
+      }, { passive: true });
+      elemen.addEventListener('touchmove', event => {
+        if (!sentuhAwal || event.touches.length !== 1) return;
+        sentuhTerakhir = { x: event.touches[0].clientX, y: event.touches[0].clientY };
+      }, { passive: true });
+      elemen.addEventListener('touchend', event => {
+        if (!sentuhAwal) return;
+        const akhir = event.changedTouches[0] || sentuhTerakhir;
+        const deltaY = akhir.clientY - sentuhAwal.y;
+        const deltaX = akhir.clientX - sentuhAwal.x;
+        sentuhAwal = null;
+        sentuhTerakhir = null;
+        if (Math.abs(deltaY) <= 30 || Math.abs(deltaY) <= Math.abs(deltaX)) return;
+        menekanKlikSetelahSwipe = true;
+        window.setTimeout(() => { menekanKlikSetelahSwipe = false; }, 450);
+        if (deltaY > 30) {
+          aturSheet(false);
+          cariEl.blur();
+        } else {
+          aturSheet(true);
+        }
+      }, { passive: true });
+      elemen.addEventListener('touchcancel', () => { sentuhAwal = null; sentuhTerakhir = null; }, { passive: true });
+      elemen.addEventListener('click', event => {
+        if (!menekanKlikSetelahSwipe) return;
+        menekanKlikSetelahSwipe = false;
+        event.preventDefault();
+        event.stopPropagation();
+      }, true);
+    }
+    pasangGesturSheet(toggleSheet);
+    pasangGesturSheet(toolsEl);
+
+    function tutupSheetDariPeta() {
+      if (!window.matchMedia('(max-width: 768px)').matches) return;
+      aturSheet(false);
+      cariEl.blur();
+    }
+    map.on('click', tutupSheetDariPeta);
+    map.on('dragstart', tutupSheetDariPeta);
     document.addEventListener('click', async event => {
       const tombolBagikan = event.target.closest('.popup-action-share');
       if (!tombolBagikan) return;
@@ -1091,6 +1311,38 @@
       }
     });
     tampilkan();
+
+    const tombolBagikanPeta = document.getElementById('bagikan-peta');
+    tombolBagikanPeta.addEventListener('click', async () => {
+      const url = window.location.href;
+      if (navigator.share) {
+        try {
+          await navigator.share({ title: 'Peta Digital Desa Setia Mulya', text: 'Jelajahi lokasi fasilitas Desa Setia Mulya.', url });
+          return;
+        } catch (error) {
+          if (error.name === 'AbortError') return;
+        }
+      }
+      try {
+        if (!navigator.clipboard?.writeText) throw new Error('Clipboard tidak tersedia');
+        await navigator.clipboard.writeText(url);
+        tampilkanToast('Link Peta Desa Setia Mulya berhasil disalin.');
+      } catch (error) {
+        tampilkanToast('Link peta tidak dapat disalin di perangkat ini.');
+      }
+    });
+
+    function sinkronkanStatusOperasional() {
+      document.querySelectorAll('[data-status-index]').forEach(elemen => {
+        const lokasi = tempat[Number(elemen.dataset.statusIndex)];
+        if (!lokasi?.jam) return;
+        const buka = cekStatusBuka(lokasi.jam);
+        elemen.classList.toggle('is-open', buka);
+        elemen.classList.toggle('is-closed', !buka);
+        elemen.innerHTML = `<span class="status-titik" aria-hidden="true">&#9679;</span>${buka ? 'Buka' : 'Tutup'}`;
+      });
+    }
+    window.setInterval(sinkronkanStatusOperasional, 60_000);
 
     const tombolBukaProfil = document.getElementById('buka-profil');
     const modalProfil = document.getElementById('modal-profil');
@@ -1118,6 +1370,7 @@
     }).join('');
 
     function bukaModalProfil() {
+      aturSheet(false);
       modalProfil.classList.add('is-open');
       modalProfil.setAttribute('aria-hidden', 'false');
       document.body.classList.add('modal-terbuka');
@@ -1182,6 +1435,7 @@
     }).join('');
 
     function bukaModalKontak() {
+      aturSheet(false);
       modalKontak.classList.add('is-open');
       modalKontak.setAttribute('aria-hidden', 'false');
       document.body.classList.add('modal-terbuka');
@@ -1234,7 +1488,7 @@
       if (!layanan) return;
 
       tutupModalKontak();
-      if (!map.hasLayer(layanan.marker)) layanan.marker.addTo(map);
+      sorotMarker(layanan);
       map.flyTo([layanan.lat, layanan.lng], 17, { duration: 0.8 });
       layanan.marker.openPopup();
     });
