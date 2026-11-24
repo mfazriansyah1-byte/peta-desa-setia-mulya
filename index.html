@@ -96,6 +96,8 @@
       color: #1e293b;
     }
     .tools select { margin-top: 6px; }
+    .sheet-toggle, .legenda-zonasi-toggle { display: none; }
+    .quick-filters { display: none; }
 
     #list { flex: 1; overflow-y: auto; padding: 4px 0 10px; }
     .grup {
@@ -119,6 +121,9 @@
     }
     .baris:hover { background: #e2e8f0; }
     .baris span { display: block; font-size: 0.72rem; color: #64748b; }
+    .baris .jenis-tempat { color: #475569; font-size: 0.68rem; font-weight: 600; }
+    .baris .badge-jarak { display: inline-flex; align-items: center; gap: 4px; margin-top: 4px; color: #0f766e; font-size: 0.7rem; font-weight: 700; }
+    .hasil-kosong { padding: 18px 14px; color: #64748b; font-size: 0.82rem; text-align: center; }
 
     .catatan {
       padding: 8px 12px;
@@ -130,11 +135,12 @@
 
     .leaflet-popup-content { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.82rem; margin: 10px 12px; }
     .leaflet-popup-content h3 { font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.95rem; margin-bottom: 3px; }
+    .popup-kriteria { display: inline-block; margin: 0 0 5px; padding: 3px 7px; border-radius: 999px; background: #f1f5f9; color: #475569; font-size: 0.7rem; line-height: 1.35; }
     .leaflet-popup-content img { display: block; width: 100%; height: 130px; object-fit: cover; margin-bottom: 6px; }
     .leaflet-popup-content p { margin: 2px 0; color: #334155; }
     .leaflet-popup-content a { color: #1d4ed8; }
     .popup-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
-    .leaflet-popup-content .popup-actions a {
+    .leaflet-popup-content .popup-actions a, .leaflet-popup-content .popup-actions button {
       display: inline-flex;
       align-items: center;
       gap: 6px;
@@ -146,8 +152,10 @@
       line-height: 1.3;
       text-decoration: none;
     }
+    .leaflet-popup-content .popup-actions button { border: 0; cursor: pointer; font-family: inherit; }
     .leaflet-popup-content .popup-action-arah { background: #1d4ed8; }
     .leaflet-popup-content .popup-action-whatsapp { background: #16a34a; }
+    .leaflet-popup-content .popup-action-share { background: #475569; }
     .leaflet-popup-content .popup-actions a:hover { filter: brightness(0.92); }
     .leaflet-popup-content .popup-zonasi ul { margin: 4px 0 0; padding-left: 18px; }
     .tooltip-zonasi { border: 0; border-radius: 6px; font-family: 'Plus Jakarta Sans', sans-serif; font-size: 0.72rem; font-weight: 600; }
@@ -162,6 +170,8 @@
     }
     .legenda-zonasi strong { display: block; margin-bottom: 6px; font-size: 0.72rem; }
     .legenda-zonasi-item { display: flex; align-items: flex-start; gap: 7px; }
+    button.legenda-zonasi-item { width: 100%; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; text-align: left; cursor: pointer; }
+    button.legenda-zonasi-item:hover { color: #1d4ed8; }
     .legenda-zonasi-item + .legenda-zonasi-item { margin-top: 4px; }
     .legenda-zonasi-swatch { width: 11px; height: 11px; flex: 0 0 11px; margin-top: 2px; border: 1px solid rgba(15, 23, 42, 0.2); border-radius: 3px; }
     .gps-control { border: 0; background: transparent; box-shadow: none; }
@@ -211,15 +221,18 @@
       position: fixed;
       inset: 0;
       z-index: 2000;
-      display: none;
+      display: flex;
+      visibility: hidden;
+      opacity: 0;
       align-items: center;
       justify-content: center;
       padding: 24px;
       background: rgba(15, 23, 42, 0.52);
       backdrop-filter: blur(5px);
       -webkit-backdrop-filter: blur(5px);
+      transition: opacity 220ms ease, visibility 220ms ease;
     }
-    .modal-overlay.is-open { display: flex; }
+    .modal-overlay.is-open { visibility: visible; opacity: 1; }
     .modal-kartu {
       width: min(920px, 100%);
       max-height: min(90vh, 900px);
@@ -228,6 +241,21 @@
       border-radius: 18px;
       background: #ffffff;
       box-shadow: 0 24px 70px rgba(15, 23, 42, 0.24);
+      opacity: 0;
+      transform: translateY(12px) scale(.985);
+      transition: transform 220ms ease, opacity 220ms ease;
+    }
+    .modal-overlay.is-open .modal-kartu { opacity: 1; transform: translateY(0) scale(1); }
+    .toast {
+      position: fixed; z-index: 3000; left: 50%; bottom: calc(22px + env(safe-area-inset-bottom, 0px));
+      max-width: min(92vw, 440px); padding: 11px 16px; border: 1px solid rgba(255,255,255,.14);
+      border-radius: 12px; background: #0f172a; color: #fff; box-shadow: 0 10px 28px rgba(15,23,42,.25);
+      font-size: .82rem; line-height: 1.45; text-align: center; opacity: 0; pointer-events: none;
+      transform: translate(-50%, 10px); transition: opacity 180ms ease, transform 180ms ease;
+    }
+    .toast.is-visible { opacity: 1; transform: translate(-50%, 0); }
+    @media (prefers-reduced-motion: reduce) {
+      .modal-overlay, .modal-kartu, .toast { transition-duration: 0.01ms; }
     }
     .modal-header {
       display: flex;
@@ -368,15 +396,27 @@
     .kontak-tombol-salin:hover { background: #e2e8f0; filter: none; }
 
     @media (max-width: 768px) {
-      header { flex-wrap: wrap; padding: 10px 12px; }
-      .header-kiri { gap: 8px; }
-      .header-kiri { flex: 1 1 100%; }
-      .header-kanan { gap: 8px; margin-left: auto; }
-      .tombol-profil { padding: 8px 10px; font-size: 0.72rem; }
-      .tombol-kontak { padding: 8px 10px; font-size: 0.72rem; }
-      header h1 { font-size: 0.95rem; }
-      header p { font-size: 0.65rem; }
-      .logo-desa, .logo-universitas { height: 36px; }
+      html, body { height: 100%; min-height: 100dvh; }
+      body { height: 100dvh; overflow: hidden; }
+      header { position: relative; z-index: 500; flex: 0 0 auto; flex-wrap: nowrap; gap: 8px; padding: 7px 10px; }
+      .header-kiri { flex: 1 1 auto; gap: 8px; }
+      .header-kanan { gap: 7px; margin-left: auto; }
+      header h1 { overflow: hidden; font-size: clamp(0.78rem, 3.4vw, 0.95rem); text-overflow: ellipsis; white-space: nowrap; }
+      header p { display: none; }
+      .logo-desa { height: 34px; }
+      .logo-universitas { display: block; height: 32px; max-width: 32px; }
+      .tombol-profil, .tombol-kontak {
+        width: 36px; height: 36px; flex: 0 0 36px; padding: 0; border-radius: 50%;
+        font-size: 0.9rem; gap: 0;
+      }
+      .tombol-profil span, .tombol-kontak span { display: none; }
+      .tombol-profil, .tombol-kontak { position: relative; }
+      .tombol-profil[title]:hover::after, .tombol-profil[title]:focus-visible::after,
+      .tombol-kontak[title]:hover::after, .tombol-kontak[title]:focus-visible::after {
+        position: absolute; z-index: 1200; top: calc(100% + 8px); right: 0;
+        width: max-content; max-width: 220px; padding: 6px 9px; border-radius: 7px;
+        background: #0f172a; color: white; content: attr(title); font: 500 0.68rem/1.3 'Plus Jakarta Sans', sans-serif;
+      }
       .modal-overlay { padding: 12px; }
       .modal-kartu { max-height: 94vh; border-radius: 14px; }
       .modal-header { padding: 20px 18px 16px; }
@@ -390,9 +430,6 @@
       .kontak-aksi { justify-content: flex-start; }
     }
     @media (max-width: 420px) {
-      .header-kanan { width: 100%; justify-content: flex-end; }
-      .tombol-kontak, .tombol-profil { max-width: 112px; padding: 6px 7px; font-size: 0.63rem; white-space: normal; }
-      .tombol-kontak, .tombol-profil { gap: 5px; text-align: center; }
       .batas-grid { gap: 8px; }
       .batas-item { padding: 10px; }
       .batas-nama { font-size: 0.73rem; }
@@ -402,9 +439,59 @@
     }
 
     @media (max-width: 768px) {
-      .wrap { flex-direction: column; }
-      #map { flex: none; height: 55%; }
-      aside { width: 100%; flex: 1; border-left: none; border-top: 1px solid #e2e8f0; min-height: 0; }
+      .wrap { position: relative; flex: 1 1 auto; min-height: 0; }
+      #map { position: absolute; inset: 0; width: 100%; height: 100%; }
+      aside {
+        position: absolute; z-index: 2000; inset: auto 0 0; width: 100%; height: min(68dvh, 620px);
+        min-height: 0; overflow: hidden; border: 1px solid rgba(203, 213, 225, .8); border-bottom: 0;
+        border-radius: 20px 20px 0 0; background: #ffffff;
+        -webkit-backdrop-filter: none; backdrop-filter: none;
+        box-shadow: 0 -8px 30px rgba(15, 23, 42, .14); transition: height .25s ease;
+        padding-bottom: env(safe-area-inset-bottom, 0px);
+      }
+      aside:not(.is-expanded) { height: calc(178px + env(safe-area-inset-bottom, 0px)); }
+      .sheet-toggle {
+        display: flex; width: 100%; height: 29px; flex: 0 0 29px; align-items: center; justify-content: center;
+        border: 0; background: transparent; cursor: pointer; touch-action: manipulation;
+      }
+      .sheet-handle { display: block; width: 38px; height: 4px; border-radius: 99px; background: #94a3b8; }
+      .tools { display: flex; align-items: center; gap: 8px; padding: 4px 12px 10px; border-bottom: 1px solid rgba(226,232,240,.85); }
+      .tools input, .tools select { min-width: 0; height: 42px; font-size: 0.83rem; }
+      .tools input { flex: 1 1 60%; }
+      .tools select { flex: 0 1 40%; margin-top: 0; }
+      .tools { order: 1; }
+      .quick-filters {
+        display: flex; order: 2; flex: 0 0 auto; gap: 7px; overflow-x: auto; padding: 1px 12px 8px;
+        scrollbar-width: none; overscroll-behavior-x: contain; -webkit-overflow-scrolling: touch;
+      }
+      .quick-filters::-webkit-scrollbar { display: none; }
+      .filter-chip {
+        flex: 0 0 auto; padding: 7px 11px; border: 1px solid #dbe3ee; border-radius: 999px;
+        background: rgba(255,255,255,.9); color: #475569; font: 600 .7rem 'Plus Jakarta Sans', sans-serif; cursor: pointer;
+      }
+      .filter-chip[aria-pressed="true"] { border-color: #1d4ed8; background: #eff6ff; color: #1d4ed8; }
+      #list { display: none; order: 4; }
+      .catatan {
+        display: block; order: 3; flex: 0 0 auto; padding: 0 12px 9px; border-top: 0;
+        color: #64748b; font-size: 11px; line-height: 1.4; text-align: center;
+      }
+      aside.is-expanded #list { display: block; flex: 1 1 auto; min-height: 0; overflow-y: auto; padding-bottom: 12px; }
+      aside.is-expanded .legenda-zonasi { visibility: hidden; pointer-events: none; }
+      .wrap.sheet-expanded .legenda-zonasi { visibility: hidden; pointer-events: none; }
+      .leaflet-popup-pane { z-index: 1200; }
+      .legenda-zonasi { padding: 0; overflow: hidden; border-radius: 999px; }
+      .legenda-zonasi-toggle {
+        display: inline-flex; min-height: 38px; align-items: center; gap: 8px; padding: 0 13px;
+        border: 0; background: transparent; color: #1e293b; font: 700 0.75rem 'Plus Jakarta Sans', sans-serif; cursor: pointer;
+      }
+      .legenda-zonasi strong, .legenda-zonasi-item { display: none; }
+      .legenda-zonasi.is-open { max-width: min(240px, 60vw); padding: 10px 12px; border-radius: 12px; }
+      .legenda-zonasi.is-open .legenda-zonasi-toggle { min-height: auto; padding: 0 0 7px; }
+      .legenda-zonasi.is-open strong, .legenda-zonasi.is-open .legenda-zonasi-item { display: flex; }
+      .legenda-zonasi.is-open strong { display: block; }
+      .leaflet-bottom.leaflet-left, .leaflet-bottom.leaflet-right {
+        bottom: calc(181px + env(safe-area-inset-bottom, 0px));
+      }
     }
   </style>
 </head>
@@ -415,17 +502,17 @@
       <img class="logo-desa" src="foto/logo-bekasi.webp" alt="Logo Kabupaten Bekasi" onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/commons/thumb/3/3e/Lambang_Kabupaten_Bekasi.svg/250px-Lambang_Kabupaten_Bekasi.svg.png';" />
       <div class="identitas">
         <h1>Peta Desa Setia Mulya</h1>
-        <p>Kecamatan Tarumajaya, Kabupaten Bekasi &middot; KKN Universitas Bhayangkara Jakarta Raya</p>
+      <p>Kecamatan Tarumajaya, Kabupaten Bekasi &middot; KKN Kelompok 13 &bull; Universitas Bhayangkara Jaya 2026</p>
       </div>
     </div>
     <div class="header-kanan">
-      <button class="tombol-kontak" id="buka-kontak" type="button">
+      <button class="tombol-kontak" id="buka-kontak" type="button" title="Kontak & Darurat" aria-label="Kontak & Darurat">
         <i class="fa-solid fa-phone-volume" aria-hidden="true"></i>
-        Kontak &amp; Darurat
+        <span>Kontak &amp; Darurat</span>
       </button>
-      <button class="tombol-profil" id="buka-profil" type="button">
+      <button class="tombol-profil" id="buka-profil" type="button" title="Profil & Statistik Desa" aria-label="Profil & Statistik Desa">
         <i class="fa-solid fa-chart-pie" aria-hidden="true"></i>
-        Profil &amp; Statistik Desa
+        <span>Profil &amp; Statistik Desa</span>
       </button>
       <img class="logo-universitas" src="foto/logo-ubhara.png" alt="Logo Universitas Bhayangkara Jakarta Raya" onerror="this.onerror=null;this.src='https://upload.wikimedia.org/wikipedia/id/4/45/Logo_ubhara.png';" />
     </div>
@@ -468,6 +555,7 @@
               <strong class="ringkasan-nilai" id="nilai-lokasi"></strong>
             </article>
           </div>
+          <p style="font-size: 0.72rem; color: #64748b; margin-top: 8px;">*Angka administratif dan batas wilayah dapat disesuaikan langsung mengikuti data monografi resmi Kantor Desa Setia Mulya.</p>
         </section>
 
         <section class="bagian-modal">
@@ -478,6 +566,7 @@
             <article class="batas-item"><span class="batas-arah">Timur</span><span class="batas-nama">Desa Samudrajaya / Babelan</span></article>
             <article class="batas-item"><span class="batas-arah">Barat</span><span class="batas-nama">Kanal Banjir Timur / Kec. Cilincing</span></article>
           </div>
+          <p style="font-size: 0.72rem; color: #64748b; margin-top: 8px;">*Angka administratif dan batas wilayah dapat disesuaikan langsung mengikuti data monografi resmi Kantor Desa Setia Mulya.</p>
         </section>
 
         <section class="bagian-modal">
@@ -528,21 +617,32 @@
 
   <div class="wrap">
     <div id="map"></div>
-    <aside>
+    <aside id="panel-tempat">
+      <button class="sheet-toggle" id="sheet-toggle" type="button" aria-label="Buka daftar tempat" aria-expanded="false"><span class="sheet-handle" aria-hidden="true"></span></button>
       <div class="tools">
-        <input type="text" id="cari" placeholder="Cari tempat..." />
+        <input type="search" id="cari" placeholder="Cari tempat..." aria-label="Cari tempat" />
         <select id="jenis"></select>
       </div>
+      <div class="quick-filters" id="quick-filters" aria-label="Filter kategori populer"></div>
       <div id="list"></div>
       <div class="catatan">
-        KKN Kelompok 13<br>Universitas Bhayangkara Jaya
+        KKN Kelompok 13 &bull; Universitas Bhayangkara Jaya 2026
       </div>
     </aside>
   </div>
+  <div class="toast" id="toast" role="status" aria-live="polite" aria-atomic="true"></div>
 
   <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
   <script>
     const map = L.map('map').setView([-6.137, 106.991], 15);
+    const toastEl = document.getElementById('toast');
+    let toastTimer;
+    function tampilkanToast(pesan) {
+      toastEl.textContent = pesan;
+      toastEl.classList.add('is-visible');
+      window.clearTimeout(toastTimer);
+      toastTimer = window.setTimeout(() => toastEl.classList.remove('is-visible'), 3200);
+    }
 
     const jalan = L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap'
@@ -550,199 +650,81 @@
     const satelit = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
       attribution: 'Esri'
     });
-    const ZONASI_WILAYAH = {
-      "type": "FeatureCollection",
-      "features": [
-        {
-          "type": "Feature",
-          "properties": {
-            "nama": "Kp. Lagoa (Wilayah Utara)",
-            "warna": "#0ea5e9",
-            "cakupan": "cakupan rt sama rw minta data resmi ke desa ingetin",
-            "fasilitas": ["SMP Attaqwa 05 Lagoa", "Masjid Jami Baytussalam"]
-          },
-          "geometry": {
-            "type": "Polygon",
-            "coordinates": [[
-              [106.9875, -6.1274],
-              [106.9958, -6.1272],
-              [106.9965, -6.1322],
-              [106.9876, -6.1322],
-              [106.9875, -6.1274]
-            ]]
-          }
-        },
-        {
-          "type": "Feature",
-          "properties": {
-            "nama": "Kp. Pamahan (Wilayah Tengah)",
-            "warna": "#f59e0b",
-            "cakupan": "cakupan rt sama rw minta data resmi ke desa ingetin",
-            "fasilitas": ["SDN Setia Mulya 02", "MTs Attaqwa 13", "Masjid Al-Mujahidun", "SPBU"]
-          },
-          "geometry": {
-            "type": "Polygon",
-            "coordinates": [[
-              [106.9876, -6.1322],
-              [106.9926, -6.1322],
-              [106.9926, -6.1430],
-              [106.9888, -6.1430],
-              [106.9876, -6.1322]
-            ]]
-          }
-        },
-        {
-          "type": "Feature",
-          "properties": {
-            "nama": "Perumahan Harapan Mulya (Wilayah Timur)",
-            "warna": "#8b5cf6",
-            "cakupan": "cakupan rt sama rw minta data resmi ke desa ingetin",
-            "fasilitas": ["Masjid Raya Harapan Mulya", "TK Rumah Putik"]
-          },
-          "geometry": {
-            "type": "Polygon",
-            "coordinates": [[
-              [106.9926, -6.1322],
-              [106.9968, -6.1345],
-              [106.9962, -6.1425],
-              [106.9926, -6.1430],
-              [106.9926, -6.1322]
-            ]]
-          }
-        },
-        {
-          "type": "Feature",
-          "properties": {
-            "nama": "Kp. Bogor (Wilayah Selatan)",
-            "warna": "#10b981",
-            "cakupan": "cakupan rt sama rw minta data resmi ke desa ingetin",
-            "fasilitas": ["Kantor Kepala Desa Setia Mulya", "Puskesmas Setiamulya", "SDN Setia Mulya 01"]
-          },
-          "geometry": {
-            "type": "Polygon",
-            "coordinates": [[
-              [106.9888, -6.1430],
-              [106.9962, -6.1425],
-              [106.9942, -6.1492],
-              [106.9892, -6.1490],
-              [106.9888, -6.1430]
-            ]]
-          }
-        }
-      ]
-    };
-
-    const layerZonasi = L.layerGroup();
-    const geojsonZonasi = L.geoJSON(ZONASI_WILAYAH, {
-      style: feature => ({
-        color: feature.properties.warna,
-        fillColor: feature.properties.warna,
-        fillOpacity: 0.18,
-        weight: 1.5,
-        dashArray: '4 4'
-      }),
-      onEachFeature: (feature, layer) => {
-        const properti = feature.properties;
-        const fasilitas = properti.fasilitas.map(nama => `<li>${nama}</li>`).join('');
-        layer.bindTooltip(properti.nama, { sticky: true, className: 'tooltip-zonasi' });
-        layer.bindPopup(
-          `<div class="popup-zonasi"><h3>${properti.nama}</h3>` +
-          `<p>${properti.cakupan}</p><p><strong>Fasilitas utama</strong></p><ul>${fasilitas}</ul></div>`
-        );
-        layer.on({
-          mouseover: event => event.target.setStyle({ fillOpacity: 0.35 }),
-          mouseout: event => geojsonZonasi.resetStyle(event.target)
-        });
-      }
-    });
-    layerZonasi.addLayer(geojsonZonasi);
-    layerZonasi.addTo(map);
-
     L.control.layers(
       { "Peta": jalan, "Satelit": satelit },
-      { "Zonasi Kampung / RW": layerZonasi },
+      null,
       { position: 'topleft' }
     ).addTo(map);
 
-    const legendaZonasi = L.control({ position: 'bottomleft' });
-    legendaZonasi.onAdd = () => {
-      const container = L.DomUtil.create('div', 'legenda-zonasi');
-      container.innerHTML = '<strong>Zonasi Kampung / RW</strong>' +
-        ZONASI_WILAYAH.features.map(feature =>
-          `<div class="legenda-zonasi-item"><span class="legenda-zonasi-swatch" style="background:${feature.properties.warna}"></span><span>${feature.properties.nama}</span></div>`
-        ).join('');
-      L.DomEvent.disableClickPropagation(container);
-      return container;
-    };
-    legendaZonasi.addTo(map);
-
-    // Batas desa. Kalau sudah punya koordinat sendiri (dari geojson.io atau kantor desa),
-    // tempel GeoJSON-nya di BATAS_MANUAL. Kalau dibiarkan null, dicari otomatis dari OpenStreetMap.
+    // Batas indikatif berlekuk yang mencakup seluruh 58 titik fasilitas.
+    // Verifikasi geometri dengan dokumen resmi desa sebelum dipakai sebagai batas legal.
     const BATAS_MANUAL = {
-      "type": "FeatureCollection",
-      "features": [
-        {
-          "type": "Feature",
-          "properties": { "nama": "Desa Setia Mulya" },
-          "geometry": {
-            "type": "Polygon",
-            "coordinates": [
-              [
-                [106.9868, -6.1275],
-                [106.9958, -6.1272],
-                [106.9968, -6.1345],
-                [106.9962, -6.1425],
-                [106.9942, -6.1492],
-                [106.9892, -6.1490],
-                [106.9888, -6.1410],
-                [106.9875, -6.1340],
-                [106.9868, -6.1275]
-              ]
-            ]
-          }
+      type: 'FeatureCollection',
+      features: [{
+        type: 'Feature',
+        properties: { name: 'Desa Setia Mulya', sumber: 'indikatif dari cakupan titik fasilitas' },
+        geometry: {
+          type: 'Polygon',
+          coordinates: [[
+              [106.9839003, -6.1489177],
+              [106.9856822, -6.1489286],
+              [106.9874507, -6.1487800],
+              [106.9892192, -6.1486314],
+              [106.9909743, -6.1483234],
+              [106.9912219, -6.1482535],
+              [106.9913397, -6.1480901],
+              [106.9914575, -6.1479267],
+              [106.9914455, -6.1476697],
+              [106.9922841, -6.1461208],
+              [106.9929757, -6.1445088],
+              [106.9936673, -6.1428968],
+              [106.9942119, -6.1412217],
+              [106.9947982, -6.1404057],
+              [106.9951102, -6.1394957],
+              [106.9954222, -6.1385857],
+              [106.9954599, -6.1375817],
+              [106.9957948, -6.1372991],
+              [106.9958429, -6.1369741],
+              [106.9958910, -6.1366491],
+              [106.9956523, -6.1362817],
+              [106.9957055, -6.1345519],
+              [106.9954715, -6.1328619],
+              [106.9952375, -6.1311719],
+              [106.9947163, -6.1295217],
+              [106.9941762, -6.1281162],
+              [106.9934937, -6.1267837],
+              [106.9928112, -6.1254512],
+              [106.9919863, -6.1241917],
+              [106.9915946, -6.1240514],
+              [106.9912111, -6.1240709],
+              [106.9908276, -6.1240904],
+              [106.9904523, -6.1242697],
+              [106.9897270, -6.1255385],
+              [106.9891485, -6.1268710],
+              [106.9885700, -6.1282035],
+              [106.9881383, -6.1295997],
+              [106.9869225, -6.1343949],
+              [106.9858630, -6.1392244],
+              [106.9848035, -6.1440539],
+              [106.9839003, -6.1489177]
+          ]]
         }
-      ]
+      }]
     };
+    const gayaBatas = {
+      color: '#b91c1c',
+      weight: 2.5,
+      dashArray: '6 5',
+      fillColor: '#dc2626',
+      fillOpacity: 0.07
+    };
+    const layerBatasDesa = L.layerGroup().addTo(map);
 
-    const gayaBatas = { color: '#8a3b12', weight: 2, dashArray: '6 5', fillColor: '#8a3b12', fillOpacity: 0.05 };
-
-    async function cariBatas() {
-      if (BATAS_MANUAL) {
-        L.geoJSON(BATAS_MANUAL, { style: gayaBatas }).addTo(map);
-        return;
-      }
-
-      // 1) Nominatim
-      const kueri = ['Setiamulya, Tarumajaya, Bekasi', 'Desa Setia Mulya, Tarumajaya', 'Setia Mulya, Kabupaten Bekasi'];
-      for (const q of kueri) {
-        try {
-          const r = await fetch('https://nominatim.openstreetmap.org/search?format=jsonv2&polygon_geojson=1&limit=10&q=' + encodeURIComponent(q));
-          const hasil = await r.json();
-          const desa = hasil.find(h => h.category === 'boundary' && h.geojson && /Polygon/.test(h.geojson.type));
-          if (desa) { L.geoJSON(desa.geojson, { style: gayaBatas }).addTo(map); return; }
-        } catch (e) { /* lanjut ke cara berikutnya */ }
-      }
-
-      // 2) Overpass: gambar garis batas dari relasi administrasi bernama Setia Mulya
-      try {
-        const data = '[out:json][timeout:25];rel["boundary"="administrative"]["name"~"Setia ?mulya",i](-6.25,106.9,-6.05,107.1);out geom;';
-        const r = await fetch('https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(data));
-        const j = await r.json();
-        let ada = false;
-        (j.elements || []).forEach(rel => {
-          (rel.members || []).forEach(m => {
-            if (m.geometry && m.geometry.length > 1) {
-              L.polyline(m.geometry.map(p => [p.lat, p.lon]), gayaBatas).addTo(map);
-              ada = true;
-            }
-          });
-        });
-        if (!ada) console.warn('Batas Setia Mulya tidak ditemukan di OpenStreetMap');
-      } catch (e) {
-        console.warn('Gagal memuat batas desa', e);
-      }
+    function cariBatas() {
+      layerBatasDesa.clearLayers();
+      L.geoJSON(BATAS_MANUAL, { style: gayaBatas }).addTo(layerBatasDesa);
+      map.fitBounds(layerBatasDesa.getBounds(), { padding: [24, 24] });
     }
-    cariBatas().then(() => geojsonZonasi.bringToFront());
 
     const WARNA = {
       "Pemerintahan": "#9c2f2f",
@@ -775,89 +757,100 @@
     // Tambah tempat baru: salin satu blok, isi, taruh sebelum penutup ]
     // foto: taruh gambar di folder "foto" sebelah file ini dengan nama sesuai isian di bawah
     const tempat = [
-      { nama: "Kantor Kepala Desa Setia Mulya", jenis: "Pemerintahan",
-        lat: -6.1477082, lng: 106.9908815, foto: "foto/kantor-desa.jpg",
-        alamat: "Jl. Taruma Jaya", telp: "(021) 6073 9845", wa: "", darurat: true, jam: "" },
-
-      { nama: "UPTD Puskesmas Setiamulya", jenis: "Kesehatan",
-        lat: -6.1478786, lng: 106.991002, foto: "foto/puskesmas.jpg",
-        alamat: "Jl. Taruma Jaya No. 168", telp: "", wa: "", darurat: true,
-        jam: "Senin-Kamis 07.45-15.00, Jumat 07.45-14.30, Sabtu 07.45-14.00" },
-
-      { nama: "SDN Setia Mulya 01", jenis: "Pendidikan",
-        lat: -6.1471226, lng: 106.9908861, foto: "foto/sdn-01.jpg",
-        alamat: "Kp. Bogor, Jl. Taruma Jaya", telp: "(021) 8899 7183", jam: "" },
-      { nama: "SDN Setia Mulya 02", jenis: "Pendidikan",
-        lat: -6.1405965, lng: 106.9900825, foto: "foto/sdn-02.jpg",
-        alamat: "Kp. Pamahan, Jl. Taruma Jaya No. 10", telp: "", jam: "" },
-      { nama: "MTs Attaqwa 13 Pamahan", jenis: "Pendidikan",
-        lat: -6.1390079, lng: 106.9911111, foto: "foto/mts-attaqwa-13.jpg",
-        alamat: "Jl. Taruma Jaya No. 14, Kp. Pamahan", telp: "0881-4068-053", jam: "" },
-      { nama: "SMP Attaqwa 05 Lagoa", jenis: "Pendidikan",
-        lat: -6.129847, lng: 106.994596, foto: "foto/smp-attaqwa-05.jpg",
-        alamat: "Jl. Masjid Nurul Mubin, Kp. Lagoa", telp: "(021) 8899 0631", jam: "" },
-      { nama: "SDIT Insan Mulya (TK, TPQ, Majelis Taklim)", jenis: "Pendidikan",
-        lat: -6.1334518, lng: 106.9918182, foto: "foto/sdit-insan-mulya.jpg",
-        alamat: "Jl. Taruma Jaya No. 15", telp: "0821-1154-1538", jam: "" },
-      { nama: "TK Rumah Putik", jenis: "Pendidikan",
-        lat: -6.1332811, lng: 106.9921616, foto: "foto/tk-rumah-putik.jpg",
-        alamat: "Perumahan Harapan Mulya Regency", telp: "0821-1241-8059", jam: "" },
-
-      { nama: "Masjid Jami Al-Mujahidun", jenis: "Tempat Ibadah",
-        lat: -6.139155, lng: 106.9906924, foto: "foto/masjid-al-mujahidun.jpg",
-        alamat: "Jl. Taruma Jaya No. 13, Kp. Pamahan", telp: "0858-9429-0102", jam: "" },
-      { nama: "Masjid Jami Nurul Iman", jenis: "Tempat Ibadah",
-        lat: -6.1345467, lng: 106.9912517, foto: "foto/masjid-nurul-iman.jpg",
-        alamat: "Pinggir jalan raya", telp: "", jam: "" },
-      { nama: "Masjid Raya Harapan Mulya", jenis: "Tempat Ibadah",
-        lat: -6.1400474, lng: 106.9939395, foto: "foto/masjid-harapan-mulya.jpg",
-        alamat: "Jl. Efodia 5 No. 009, Perumahan Harapan Mulya", telp: "0812-1000-3575", jam: "" },
-      { nama: "Masjid Jami Birril Waalidiina", jenis: "Tempat Ibadah",
-        lat: -6.14458, lng: 106.9918337, foto: "foto/masjid-birril-waalidiina.jpg",
-        alamat: "Jl. Taruma Jaya", telp: "0812-8050-6878", jam: "" },
-      { nama: "Masjid Jami Baytussalam", jenis: "Tempat Ibadah",
-        lat: -6.129934, lng: 106.988242, foto: "foto/masjid-baytussalam.jpg",
-        alamat: "Bagian utara desa", telp: "0813-1150-0812", jam: "" },
-
-      { nama: "Indomaret Taruma Jaya Setia", jenis: "Toko & Layanan",
-        lat: -6.1349953, lng: 106.9913401, foto: "foto/indomaret.jpg",
-        alamat: "Kp. Pamahan Bulak, RT 01/RW 08", telp: "", jam: "07.00-22.00" },
-      { nama: "O!Save Setia Mulya", jenis: "Toko & Layanan",
-        lat: -6.1400533, lng: 106.9907092, foto: "foto/osave.jpg",
-        alamat: "Jl. Taruma Jaya", telp: "", jam: "07.00-22.00" },
-      { nama: "Terusan Tarumajaya (swalayan)", jenis: "Toko & Layanan",
-        lat: -6.1274505, lng: 106.9913683, foto: "foto/terusan.jpg",
-        alamat: "Jl. Tarumajaya Raya No. 65", telp: "0852-2074-8131", jam: "08.00-21.30" },
-      { nama: "SPBU Pertamina 34.172.06", jenis: "Toko & Layanan",
-        lat: -6.1410195, lng: 106.9907338, foto: "foto/spbu.jpg",
-        alamat: "Kp. Pamahan, Jl. Raya", telp: "", jam: "06.00-22.00" },
-
-      { nama: "Tempat Pemakaman Umum", jenis: "Pemakaman",
-        lat: -6.1368261, lng: 106.9906578, foto: "foto/tpu.jpg",
-        alamat: "", telp: "", jam: "" },
-
-      { nama: "Posyandu Melati RW 03", jenis: "Layanan Warga & RW",
-        lat: -6.1415, lng: 106.9912, foto: "foto/posyandu.jpg",
-        alamat: "Kp. Pamahan RT 02/RW 03", telp: "", wa: "6281200000001",
-        jam: "Setiap Rabu Minggu ke-2 (08.00-11.00)" },
-      { nama: "Sekretariat RW 05 Kp. Pamahan", jenis: "Layanan Warga & RW",
-        lat: -6.1382, lng: 106.9903, foto: "foto/kantor-rw.jpg",
-        alamat: "Kp. Pamahan RW 05", telp: "", wa: "6281200000002", jam: "19.00-21.00 WIB" },
-      { nama: "Bank Sampah & TPS Setia Mulya", jenis: "Layanan Warga & RW",
-        lat: -6.1358, lng: 106.9895, foto: "foto/bank-sampah.jpg",
-        alamat: "Area Barat Kp. Pamahan", telp: "", wa: "", jam: "06.00-17.00 WIB" },
-      { nama: "Pos Kamling & Bhabinkamtibmas Setia Mulya", jenis: "Pemerintahan",
-        lat: -6.1465, lng: 106.9905, foto: "foto/pos-bhabin.jpg",
-        alamat: "Dekat Kantor Desa Setia Mulya", telp: "110", wa: "6281200000003",
-        darurat: true, jam: "24 Jam" }
+      { nama: "Kantor Kepala Desa Setia Mulya", jenis: "Pemerintahan", kriteria: "Pusat Pemerintahan Desa & Administrasi Publik", lat: -6.1477082, lng: 106.9908815, foto: "foto/kantor-desa.jpg", alamat: "VX2R+W96, Jl. Taruma Jaya Bks, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", telp: "(021) 6073 9845", darurat: true },
+      { nama: "UPTD Puskesmas Setiamulya", jenis: "Kesehatan", kriteria: "Fasilitas Kesehatan Tingkat Pertama (FKTP) Pemerintah / Puskesmas", lat: -6.1478786, lng: 106.991002, foto: "foto/puskesmas.jpg", alamat: "Jl. Taruma Jaya No.168, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", jam: "Senin-Kamis (07.45-15.00), Jumat (07.45-14.30), Sabtu (07.45-14.00)", darurat: true },
+      { nama: "Praktek Dokter Umum & Gigi Jasmine Medika", jenis: "Kesehatan", kriteria: "Klinik Pratama / Praktik Dokter Umum & Dokter Gigi", lat: -6.14315, lng: 106.991305, alamat: "Jl. Tarumajaya Raya No.49, Setiamulya, Tarumajaya, Kabupaten Bekasi 17214", jam: "Senin-Kamis & Sabtu (08.00-14.00, 17.00-22.00), Jumat (08.00-11.30, 17.00-22.00)" },
+      { nama: "Bidan Desi Novianingsih. SST", jenis: "Kesehatan", kriteria: "Praktik Mandiri Bidan (Kesehatan Ibu & Anak / KIA)", lat: -6.14515, lng: 106.990515, alamat: "Jl. Tarumajaya Raya, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", jam: "Setiap hari (07.00-22.00)" },
+      { nama: "Klinik Bidan Aisyah Astri", jenis: "Kesehatan", kriteria: "Klinik Kebidanan & Layanan Kesehatan Ibu-Anak", lat: -6.12475, lng: 106.9905, alamat: "VXGR+35G, Jl. Syarif Hidayatullah, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17216" },
+      { nama: "Apotek Niat", jenis: "Kesehatan", kriteria: "Apotek & Layanan Kefarmasian", lat: -6.141825, lng: 106.990965, alamat: "Jl. Taruma Jaya No.9, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", jam: "Senin-Jumat (07.00-22.00), Sabtu-Minggu (07.30-22.00)" },
+      { nama: "Apotek Athariz Sehat", jenis: "Kesehatan", kriteria: "Apotek & Layanan Kefarmasian (Wilayah RT 01/RW 02)", lat: -6.13145, lng: 106.990945, alamat: "Jl. Taruma Jaya, RT.01/RW.02, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", jam: "Senin-Jumat (09.00-21.00)" },
+      { nama: "Apotek Al-Shams Farma", jenis: "Kesehatan", kriteria: "Apotek & Layanan Kefarmasian (Zona Harapan Mulya)", lat: -6.13885, lng: 106.994275, alamat: "Jl. Harapan Mulya Raya No.25, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", jam: "Senin-Jumat (08.30-22.30), Sabtu (08.30-22.00), Minggu (09.00-22.00)" },
+      { nama: "Apotek Amin", jenis: "Kesehatan", kriteria: "Apotek & Layanan Kefarmasian (Zona Harapan Mulya)", lat: -6.13955, lng: 106.994575, alamat: "Jl. Harapan Mulya No.21, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213" },
+      { nama: "Apotek Jasmine Farma", jenis: "Kesehatan", kriteria: "Apotek & Layanan Kefarmasian", lat: -6.126225, lng: 106.9916, alamat: "VXFR+FJM, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", jam: "Senin-Sabtu (08.00-21.30)" },
+      { nama: "SDN Setia Mulya 01", jenis: "Pendidikan", kriteria: "Sekolah Dasar Negeri (Pendidikan Dasar Formal)", lat: -6.1471226, lng: 106.9908861, foto: "foto/sdn-01.jpg", alamat: "Jl. Taruma Jaya, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", telp: "(021) 8899 7183", jam: "Senin-Sabtu (07.00-15.00)" },
+      { nama: "SDN Setia Mulya 02", jenis: "Pendidikan", kriteria: "Sekolah Dasar Negeri (Pendidikan Dasar Formal)", lat: -6.1405965, lng: 106.9900825, foto: "foto/sdn-02.jpg", alamat: "VX5R+29G, Jl. Taruma Jaya No.10, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213" },
+      { nama: "SDIT Insan Mulya, TK, TPQ, Majelis Taklim", jenis: "Pendidikan", kriteria: "Pendidikan Islam Terpadu (TK, SDIT, TPQ, & Majelis Taklim)", lat: -6.1334518, lng: 106.9918182, foto: "foto/sdit-insan-mulya.jpg", alamat: "Jl. Taruma Jaya No.15, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", telp: "0821-1154-1538" },
+      { nama: "Yayasan Al Hayyuniyah", jenis: "Pendidikan", kriteria: "Yayasan Pendidikan & Keagamaan", lat: -6.133125, lng: 106.991175, alamat: "Jl. Taruma Jaya No.09, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213" },
+      { nama: "Masjid Raya Harapan Mulya", jenis: "Tempat Ibadah", kriteria: "Masjid Raya / Masjid Utama Kawasan Perumahan", lat: -6.1400474, lng: 106.9939395, foto: "foto/masjid-harapan-mulya.jpg", alamat: "Jl. Efodia 5 No.009, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", telp: "0812-1000-3575", jam: "Buka 24 jam" },
+      { nama: "Masjid Raya Harapan Mulya Regency", jenis: "Tempat Ibadah", kriteria: "Masjid Raya / Masjid Utama Harapan Mulya Regency", lat: -6.13315, lng: 106.99375, alamat: "VX8V+PF8 Harapan Mulya Regency, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213" },
+      { nama: "Masjid Jami Al-Mujahidun", jenis: "Tempat Ibadah", kriteria: "Masjid Jami Koridor Jalan Utama", lat: -6.139155, lng: 106.9906924, foto: "foto/masjid-al-mujahidun.jpg", alamat: "Jl. Taruma Jaya No.13, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", telp: "0858-9429-0102", jam: "Buka 24 jam" },
+      { nama: "Masjid Jami Baytussalam", jenis: "Tempat Ibadah", kriteria: "Masjid Jami Lingkungan Warga", lat: -6.129875, lng: 106.988275, foto: "foto/masjid-baytussalam.jpg", alamat: "VXCQ+27H, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", telp: "0813-1150-0812", jam: "Buka 24 jam" },
+      { nama: "Masjid Jami Nurul Mubin", jenis: "Tempat Ibadah", kriteria: "Masjid Jami Lingkungan Warga", lat: -6.1298, lng: 106.9946, alamat: "VXCV+3R3, Jl. Masjid Nurul Mubin, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", jam: "Buka 24 jam" },
+      { nama: "Mushola LDII Al-Barokah Kelp.3, Desa Tarumajaya", jenis: "Tempat Ibadah", kriteria: "Mushola / Tempat Ibadah Lingkungan Perumahan", lat: -6.13515, lng: 106.995015, alamat: "Jl. Harapan Mulya Regency, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", jam: "Setiap hari (06.30-22.30)" },
+      { nama: "Mushola Ar-Rasyidin", jenis: "Tempat Ibadah", kriteria: "Mushola Lingkungan Warga", lat: -6.14775, lng: 106.989825, alamat: "VX2Q+VWC, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213" },
+      { nama: "Mushola Al-Muhajirin (RW 15)", jenis: "Tempat Ibadah", kriteria: "Mushola Lingkungan Warga (RT 01/RW 15)", lat: -6.13755, lng: 106.995315, alamat: "RT.01/15, Jl. Philia XI, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", jam: "Setiap hari (04.00-21.00)" },
+      { nama: "Mushola Al-Muhajirin (Jl. Philia II)", jenis: "Tempat Ibadah", kriteria: "Mushola Lingkungan Warga (Area Jl. Philia II)", lat: -6.1363, lng: 106.9955, alamat: "VX7W+F54, Jl. Philia II, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213" },
+      { nama: "Musholla Al-Barkah", jenis: "Tempat Ibadah", kriteria: "Mushola Tepi Jalan Utama", lat: -6.136575, lng: 106.991, alamat: "VX7R+89W, Jl. Taruma Jaya, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213" },
+      { nama: "Mushola Rodhotul Jannah", jenis: "Tempat Ibadah", kriteria: "Mushola Lingkungan Warga", lat: -6.14375, lng: 106.991535, alamat: "Jl. Tarumajaya Raya No.76, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17211" },
+      { nama: "Prima Mart Harapan Mulya", jenis: "Toko & Layanan", kriteria: "Minimarket & Ritel Harian", lat: -6.139025, lng: 106.9926, alamat: "VX6V+927, Jl. Harapan Mulya Bulevar, Setiamulya", jam: "Setiap hari (07.00-21.00)" },
+      { nama: "Indomaret Taruma Jaya Raya", jenis: "Toko & Layanan", kriteria: "Minimarket & Ritel Harian", lat: -6.141525, lng: 106.991265, alamat: "Jl. Taruma Jaya No.11 004, Setiamulya", jam: "Setiap hari (07.00-22.00)" },
+      { nama: "Alfamart Tarumajaya CI21", jenis: "Toko & Layanan", kriteria: "Minimarket & Ritel Harian", lat: -6.12785, lng: 106.991665, alamat: "Area SPBU Pertamina Legoa, Jl. Taruma Jaya Raya Depan No.13, Setiamulya", jam: "Setiap hari (07.00-22.00)" },
+      { nama: "Indomaret Taruma Jaya Setia (FWNH)", jenis: "Toko & Layanan", kriteria: "Minimarket & Ritel Harian", lat: -6.1349953, lng: 106.9913401, foto: "foto/indomaret.jpg", alamat: "VX8R+2G4, Kp. Pomahan Bulak, RT.1/RW.008, Setiamulya", jam: "Setiap hari (07.00-22.00)" },
+      { nama: "Indomaret Harapan Mulya 8-9", jenis: "Toko & Layanan", kriteria: "Minimarket & Ritel Harian", lat: -6.13795, lng: 106.994875, alamat: "Jl. Harapan Mulya Boulevar Blok THM No.6, Setiamulya", jam: "Setiap hari (07.00-21.00)" },
+      { nama: "Indomaret Taruma Jaya 2", jenis: "Toko & Layanan", kriteria: "Minimarket & Ritel Harian", lat: -6.124675, lng: 106.991975, alamat: "VXGR+4Q3, Setiamulya", jam: "Setiap hari (07.00-22.00)" },
+      { nama: "Indomaret Harapan Mulya T9LE", jenis: "Toko & Layanan", kriteria: "Minimarket & Ritel Harian", lat: -6.13585, lng: 106.994675, alamat: "Ruko Harapan Mulya BHM 30-32, Setiamulya", jam: "Setiap hari (07.00-22.00)" },
+      { nama: "Toko Bangunan Setia Jaya Taruma Jaya", jenis: "Toko & Layanan", kriteria: "Toko Material Bangunan, Elektronik & Kelontong", lat: -6.14235, lng: 106.990175, alamat: "Jl. Taruma Jaya, Setiamulya", jam: "Setiap hari (07.00-16.30)" },
+      { nama: "TB. Sumber Jaya Makmur", jenis: "Toko & Layanan", kriteria: "Toko Material Bangunan, Elektronik & Kelontong", lat: -6.14725, lng: 106.991455, alamat: "Jl. Taruma Jaya No.168, Setiamulya", jam: "Setiap hari (07.00-17.00)" },
+      { nama: "Tarumajaya Elektronik", jenis: "Toko & Layanan", kriteria: "Toko Material Bangunan, Elektronik & Kelontong", lat: -6.14085, lng: 106.990375, alamat: "Jl. Tarumajaya Raya No.12, Setiamulya", jam: "Setiap hari (09.00-20.00)" },
+      { nama: "Toko Syarif", jenis: "Toko & Layanan", kriteria: "Toko Material Bangunan, Elektronik & Kelontong", lat: -6.13985, lng: 106.988925, alamat: "Jl. Perum Bali Indah RW 020, Setiamulya", jam: "Setiap hari (08.00-18.00)" },
+      { nama: "Toko Serbataman", jenis: "Toko & Layanan", kriteria: "Toko Material Bangunan, Elektronik & Kelontong", lat: -6.13545, lng: 106.990965, alamat: "Jl. Taruma Jaya Kp. Pomahan Bulak No.16C, Setiamulya", jam: "Setiap hari (08.00-18.00)" },
+      { nama: "Yamaha Bali Indah Motor", jenis: "Toko & Layanan", kriteria: "Dealer & Bengkel Resmi Motor", lat: -6.14025, lng: 106.990545, alamat: "Jl. Tarumajaya Raya No.12, Setiamulya", jam: "Senin, Rabu-Kamis, Minggu (07.00-18.30), Selasa (07.00-17.00), Sabtu (08.00-17.00)" },
+      { nama: "Eksa Jaya Motor", jenis: "Toko & Layanan", kriteria: "Bengkel Sepeda Motor", lat: -6.14845, lng: 106.9842, alamat: "VX2M+HMR, Setiamulya", jam: "Setiap hari (08.00-21.00)" },
+      { nama: "Karya Mandiri Bengkel Mobil", jenis: "Toko & Layanan", kriteria: "Bengkel Mobil", lat: -6.13815, lng: 106.990165, alamat: "Jl. Taruma Jaya Kp. Pamahan, RT.1/RW.05, Setiamulya", jam: "Setiap hari (08.00-17.00)" },
+      { nama: "Bengkel Mulya Knalpot", jenis: "Toko & Layanan", kriteria: "Spesialis Knalpot & Otomotif", lat: -6.14115, lng: 106.991615, alamat: "Jl. Taruma Jaya No.131, Setiamulya" },
+      { nama: "Audy Garage", jenis: "Toko & Layanan", kriteria: "Bengkel & Variasi Otomotif", lat: -6.125075, lng: 106.991475, alamat: "VXFR+WHV, Jl. Tarumajaya Raya, Setiamulya", jam: "Senin-Kamis, Sabtu-Minggu (11.00-21.00)" },
+      { nama: "Laundry Express - Cendana Wangi Laundry", jenis: "Toko & Layanan", kriteria: "Jasa Binatu (Laundry)", lat: -6.14485, lng: 106.990735, alamat: "Jl. Taruma Jaya, Setiamulya", jam: "Setiap hari (07.30-20.00)" },
+      { nama: "GPS Laundry Express", jenis: "Toko & Layanan", kriteria: "Jasa Binatu (Laundry)", lat: -6.14295, lng: 106.990975, alamat: "Jl. Tarumajaya Raya, Setiamulya", jam: "Senin (09.00-20.00), Selasa-Minggu (08.00-20.00)" },
+      { nama: "Moo Laundry Tarumajaya", jenis: "Toko & Layanan", kriteria: "Jasa Binatu (Laundry)", lat: -6.13935, lng: 106.990835, alamat: "Jl. Taruma Jaya, Setiamulya", jam: "Setiap hari (07.00-22.00)" },
+      { nama: "Many Laundry", jenis: "Toko & Layanan", kriteria: "Jasa Binatu (Laundry)", lat: -6.13665, lng: 106.991035, alamat: "Ruko Kavling Risma Elnara, Jl. Taruma Jaya, Setiamulya", jam: "Senin-Jumat (08.00-22.00), Sabtu-Minggu (07.00-22.00)" },
+      { nama: "Wash Up Laundry Tarumajaya", jenis: "Toko & Layanan", kriteria: "Jasa Binatu (Laundry)", lat: -6.13435, lng: 106.991585, alamat: "Jl. Taruma Jaya Ruko No.8, Setiamulya", jam: "Setiap hari (07.00-21.00)" },
+      { nama: "Kedai Jajanan's", jenis: "UMKM", kriteria: "UMKM Kuliner & Jajanan Rumahan (RT 007/RW 012)", lat: -6.13525, lng: 106.995315, alamat: "Perumahan Harapan Mulya Blok 25HM No.20 RT 007/012, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", jam: "Senin-Sabtu (10.00-20.30)" },
+      { nama: "Waroeng Ibu Noeng", jenis: "UMKM", kriteria: "UMKM Warung Makan Masakan Lokal", lat: -6.12725, lng: 106.991375, alamat: "VXFR+3GG, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", jam: "Setiap hari (11.00-21.00)" },
+      { nama: "Kuliner Seafood Sakana", jenis: "UMKM", kriteria: "UMKM Kuliner Olahan Laut / Seafood", lat: -6.14105, lng: 106.994115, alamat: "Jl. Efodia 6 No.21 Blok 33 HM, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", jam: "Setiap hari (08.00-19.00)" },
+      { nama: "Rumah Makan Surya", jenis: "UMKM", kriteria: "UMKM Rumah Makan Harian (Zona Kp. Pomahan)", lat: -6.1329, lng: 106.9919, alamat: "VX8R+RP9, Jalan Raya Tarumajaya Kp. Pomahan, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", jam: "Setiap hari (09.00-21.30)" },
+      { nama: "UMKM Keripik", jenis: "UMKM", kriteria: "UMKM Produksi Makanan Ringan / Keripik Lokal", lat: -6.12675, lng: 106.989915, alamat: "Jl. Syarif Hidayatullah, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", jam: "Senin-Jumat (07.00-18.30), Sabtu-Minggu (07.00-18.00)" },
+      { nama: "Warung Sembako Via", jenis: "UMKM", kriteria: "UMKM Warung Sembako Mandiri 24 Jam", lat: -6.14215, lng: 106.990705, alamat: "Jl. Taruma Jaya No.6, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", jam: "Buka 24 jam" },
+      { nama: "Warung Sambel Ijo HM", jenis: "UMKM", kriteria: "UMKM Kuliner Rumahan (Zona Harapan Mulya)", lat: -6.13825, lng: 106.994015, alamat: "26 HM, Jl. Harapan Mulya Raya No.09, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213" },
+      { nama: "Warung Kebun Kita WKK", jenis: "UMKM", kriteria: "UMKM Warung Makan & Kuliner Santai", lat: -6.13485, lng: 106.990775, alamat: "Jl. Taruma Jaya No.16C, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", jam: "Senin-Jumat (08.00-21.00), Sabtu-Minggu (08.00-22.00)" },
+      { nama: "Seafood Mini Jaya", jenis: "UMKM", kriteria: "UMKM Kuliner Seafood", lat: -6.13035, lng: 106.991475, alamat: "Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213", jam: "Setiap hari (11.00-23.00)" },
+      { nama: "Tempat Pemakaman Umum", jenis: "Pemakaman", kriteria: "Tempat Pemakaman Umum (TPU) Desa", lat: -6.1365, lng: 106.991075, foto: "foto/tpu.jpg", alamat: "VX7R+9CC, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213" },
+      { nama: "Balai Warga", jenis: "Layanan Warga & RW", kriteria: "Balai Pertemuan & Layanan Sosial Warga Tingkat RW/Perumahan", lat: -6.13565, lng: 106.992915, alamat: "Jl. Hortensia No.15, Setiamulya, Kec. Tarumajaya, Kabupaten Bekasi 17213" }
     ];
-
     const listEl = document.getElementById('list');
     const cariEl = document.getElementById('cari');
     const jenisEl = document.getElementById('jenis');
+    const quickFiltersEl = document.getElementById('quick-filters');
+    const kategoriPopuler = [
+      'Pemerintahan', 'Kesehatan', 'Pendidikan', 'Tempat Ibadah',
+      'Toko & Layanan', 'Layanan Warga & RW'
+    ];
 
     jenisEl.innerHTML = '<option value="">Semua jenis tempat</option>' +
       Object.keys(WARNA).map(j => `<option>${j}</option>`).join('');
+    quickFiltersEl.innerHTML = [
+      ['Semua', ''], ...kategoriPopuler.map(kategori => [kategori, kategori])
+    ].map(([label, value]) =>
+      `<button class="filter-chip" type="button" data-filter="${value}" aria-pressed="${value === ''}">${label}</button>`
+    ).join('');
+
+    function sinkronkanChip() {
+      quickFiltersEl.querySelectorAll('.filter-chip').forEach(chip => {
+        chip.setAttribute('aria-pressed', String(chip.dataset.filter === jenisEl.value));
+      });
+    }
+    quickFiltersEl.addEventListener('click', event => {
+      const chip = event.target.closest('.filter-chip');
+      if (!chip) return;
+      jenisEl.value = chip.dataset.filter;
+      sinkronkanChip();
+      tampilkan();
+      aturSheet(true);
+    });
+    jenisEl.addEventListener('change', () => {
+      sinkronkanChip();
+      tampilkan();
+      aturSheet(true);
+    });
 
     tempat.forEach(t => {
       const ikon = L.divIcon({
@@ -879,10 +872,11 @@
       const aksiWhatsApp = t.wa
         ? `<a class="popup-action-whatsapp" href="https://wa.me/${t.wa}?text=Halo%20${encodeURIComponent(t.nama)},%20saya%20melihat%20informasi%20dari%20Peta%20Digital%20Desa%20Setia%20Mulya." target="_blank" rel="noopener"><i class="fa-brands fa-whatsapp" aria-hidden="true"></i>Hubungi via WhatsApp</a>`
         : '';
+      const urlPeta = `https://www.google.com/maps/search/?api=1&query=${t.lat},${t.lng}`;
 
       t.marker.bindPopup(
-        `${foto}<h3>${t.nama}</h3>${baris}` +
-        `<div class="popup-actions"><a class="popup-action-arah" href="https://www.google.com/maps/dir/?api=1&destination=${t.lat},${t.lng}" target="_blank" rel="noopener"><i class="fa-solid fa-diamond-turn-right" aria-hidden="true"></i>Petunjuk Arah</a>${aksiWhatsApp}</div>`,
+        `${foto}<h3>${t.nama}</h3>${t.kriteria ? `<span class="popup-kriteria">${t.kriteria}</span>` : ""}${baris}` +
+        `<div class="popup-actions"><a class="popup-action-arah" href="https://www.google.com/maps/dir/?api=1&destination=${t.lat},${t.lng}" target="_blank" rel="noopener"><i class="fa-solid fa-diamond-turn-right" aria-hidden="true"></i>Petunjuk Arah</a><button class="popup-action-share" type="button" data-share-url="${urlPeta}" data-share-title="${t.nama}"><i class="fa-solid fa-share-nodes" aria-hidden="true"></i>Bagikan</button>${aksiWhatsApp}</div>`,
         { minWidth: 220, maxWidth: 260 }
       );
     });
@@ -890,6 +884,7 @@
     let tombolGPS;
     let markerPengguna = null;
     let lingkaranAkurasi = null;
+    let posisiPenggunaAktif = null;
     const ikonPengguna = L.divIcon({
       className: 'gps-marker',
       html: '<span class="gps-pulse"><span class="gps-pulse-core"></span></span>',
@@ -924,9 +919,10 @@
 
       aturStatusGPS(false);
       if (!kantorDesa || !puskesmas || !terdekat) {
-        alert('Data fasilitas penting belum tersedia, sehingga jarak belum dapat dihitung.');
+        tampilkanToast('Data fasilitas penting belum tersedia, sehingga jarak belum dapat dihitung.');
         return;
       }
+      posisiPenggunaAktif = titikPengguna;
 
       if (lingkaranAkurasi) {
         lingkaranAkurasi.setLatLng(titikPengguna);
@@ -960,7 +956,7 @@
         `<div class="popup-gps"><h3>Posisi Anda Saat Ini</h3>` +
         `<p><strong>Kantor Desa:</strong> ${formatJarak(jarakKantor)}</p>` +
         `<p><strong>Puskesmas:</strong> ${formatJarak(jarakPuskesmas)}</p>` +
-        `<p><strong>Fasilitas terdekat:</strong><br>${terdekat.fasilitas.nama} — ${formatJarak(terdekat.jarak)}</p></div>`;
+        `<p><strong>Fasilitas terdekat:</strong><br>${terdekat.fasilitas.nama} &mdash; ${formatJarak(terdekat.jarak)}</p></div>`;
 
       if (markerPengguna.getPopup()) {
         markerPengguna.getPopup().setContent(isiPopup);
@@ -969,11 +965,12 @@
       }
       markerPengguna.openPopup();
       map.flyTo(titikPengguna, 16);
+      tampilkan();
     }
 
     function cariPosisiPengguna() {
       if (!navigator.geolocation) {
-        alert('Browser tidak mendukung GPS. Coba buka peta di browser yang mendukung lokasi.');
+        tampilkanToast('Browser ini tidak mendukung GPS. Coba buka peta di browser yang mendukung lokasi.');
         return;
       }
 
@@ -985,7 +982,7 @@
           const pesan = error.code === error.PERMISSION_DENIED
             ? 'Izin lokasi ditolak. Aktifkan GPS dan izinkan akses lokasi di browser, lalu coba lagi.'
             : 'Lokasi belum berhasil ditemukan. Pastikan GPS aktif dan coba lagi.';
-          alert(pesan);
+          tampilkanToast(pesan);
         },
         { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 }
       );
@@ -1008,41 +1005,92 @@
       const kata = cariEl.value.trim().toLowerCase();
       const jenis = jenisEl.value;
       listEl.innerHTML = '';
+      const cocok = tempat.filter(t =>
+        (!jenis || jenis === t.jenis) &&
+        (t.nama.toLowerCase().includes(kata) || (t.kriteria || '').toLowerCase().includes(kata) || (t.alamat || '').toLowerCase().includes(kata))
+      );
+      tempat.forEach(t => {
+        if (cocok.includes(t)) t.marker.addTo(map); else map.removeLayer(t.marker);
+      });
 
-      Object.keys(WARNA).forEach(j => {
-        const isi = tempat.filter(t =>
-          t.jenis === j &&
-          (!jenis || jenis === j) &&
-          (t.nama.toLowerCase().includes(kata) || (t.alamat || '').toLowerCase().includes(kata))
-        );
+      function tambahBaris(t) {
+        const d = document.createElement('div');
+        d.className = 'baris';
+        const jarak = posisiPenggunaAktif
+          ? map.distance(posisiPenggunaAktif, [t.lat, t.lng])
+          : null;
+        d.innerHTML = t.nama +
+          (posisiPenggunaAktif ? `<span class="jenis-tempat">${t.jenis}</span>` : '') +
+          (t.alamat ? `<span>${t.alamat}</span>` : '') +
+          (jarak !== null ? `<span class="badge-jarak"><i class="fa-solid fa-location-dot" aria-hidden="true"></i> ${formatJarak(jarak)}</span>` : '');
+        d.onclick = () => {
+          if (window.matchMedia('(max-width: 768px)').matches) aturSheet(false);
+          map.flyTo([t.lat, t.lng], 17, { duration: 0.8 });
+          t.marker.openPopup();
+        };
+        listEl.appendChild(d);
+      }
 
-        tempat.filter(t => t.jenis === j).forEach(t => {
-          if (isi.includes(t)) t.marker.addTo(map); else map.removeLayer(t.marker);
-        });
-        if (!isi.length) return;
-
+      if (posisiPenggunaAktif) {
+        cocok.sort((a, b) => map.distance(posisiPenggunaAktif, [a.lat, a.lng]) - map.distance(posisiPenggunaAktif, [b.lat, b.lng]));
         const h = document.createElement('div');
         h.className = 'grup';
-        h.innerHTML = `<i class="${IKON[j]}" style="color:${WARNA[j]}" aria-hidden="true"></i>${j}`;
+        h.textContent = 'Terdekat dari Titik Saya';
         listEl.appendChild(h);
-
-        isi.forEach(t => {
-          const d = document.createElement('div');
-          d.className = 'baris';
-          d.innerHTML = t.nama + (t.alamat ? `<span>${t.alamat}</span>` : '');
-          d.onclick = () => {
-            map.flyTo([t.lat, t.lng], 17, { duration: 0.8 });
-            t.marker.openPopup();
-          };
-          listEl.appendChild(d);
+        cocok.forEach(tambahBaris);
+      } else {
+        Object.keys(WARNA).forEach(j => {
+          const isi = cocok.filter(t => t.jenis === j);
+          if (!isi.length) return;
+          const h = document.createElement('div');
+          h.className = 'grup';
+          h.innerHTML = `<i class="${IKON[j]}" style="color:${WARNA[j]}" aria-hidden="true"></i>${j}`;
+          listEl.appendChild(h);
+          isi.forEach(tambahBaris);
         });
-      });
+      }
+      if (!cocok.length) listEl.innerHTML = '<p class="hasil-kosong">Tempat tidak ditemukan.</p>';
     }
 
     cariEl.addEventListener('input', tampilkan);
-    jenisEl.addEventListener('change', tampilkan);
+    const panelTempat = document.getElementById('panel-tempat');
+    const toggleSheet = document.getElementById('sheet-toggle');
+    const wrapPeta = document.querySelector('.wrap');
+    function aturSheet(terbuka) {
+      panelTempat.classList.toggle('is-expanded', terbuka);
+      wrapPeta.classList.toggle('sheet-expanded', terbuka);
+      toggleSheet.setAttribute('aria-expanded', String(terbuka));
+      toggleSheet.setAttribute('aria-label', terbuka ? 'Tutup daftar tempat' : 'Buka daftar tempat');
+    }
+    toggleSheet.addEventListener('click', () => aturSheet(!panelTempat.classList.contains('is-expanded')));
+    cariEl.addEventListener('focus', () => aturSheet(true));
+    cariEl.addEventListener('input', () => { if (cariEl.value.trim()) aturSheet(true); });
+    jenisEl.addEventListener('change', () => aturSheet(true));
+    map.on('click', () => {
+      if (window.matchMedia('(max-width: 768px)').matches) aturSheet(false);
+    });
+    document.addEventListener('click', async event => {
+      const tombolBagikan = event.target.closest('.popup-action-share');
+      if (!tombolBagikan) return;
+      const url = tombolBagikan.dataset.shareUrl;
+      const title = tombolBagikan.dataset.shareTitle;
+      if (navigator.share) {
+        try {
+          await navigator.share({ title, text: `Lihat lokasi ${title} di Peta Desa Setia Mulya.`, url });
+          return;
+        } catch (error) {
+          if (error.name === 'AbortError') return;
+        }
+      }
+      try {
+        if (!navigator.clipboard?.writeText) throw new Error('Clipboard tidak tersedia');
+        await navigator.clipboard.writeText(url);
+        tampilkanToast('Link Google Maps berhasil disalin.');
+      } catch (error) {
+        tampilkanToast('Link tidak dapat disalin. Coba buka lokasi lalu salin alamatnya.');
+      }
+    });
     tampilkan();
-    map.fitBounds(L.latLngBounds(tempat.map(t => [t.lat, t.lng])).pad(0.15));
 
     const tombolBukaProfil = document.getElementById('buka-profil');
     const modalProfil = document.getElementById('modal-profil');
@@ -1158,7 +1206,7 @@
         const layanan = tempat[Number(tombolSalin.dataset.tempatIndex)];
         if (!layanan || !layanan.telp) return;
         if (!navigator.clipboard || !navigator.clipboard.writeText) {
-          alert('Clipboard tidak tersedia. Silakan salin nomor telepon secara manual.');
+          tampilkanToast('Clipboard tidak tersedia. Silakan salin nomor telepon secara manual.');
           return;
         }
 
@@ -1166,12 +1214,13 @@
           await navigator.clipboard.writeText(layanan.telp);
         } catch (error) {
           console.error('Gagal menyalin nomor telepon', error);
-          alert('Nomor telepon gagal disalin. Silakan salin nomor secara manual.');
+          tampilkanToast('Nomor telepon gagal disalin. Silakan salin nomor secara manual.');
           return;
         }
 
         const labelAwal = tombolSalin.innerHTML;
         tombolSalin.textContent = 'Tersalin!';
+        tampilkanToast('Nomor telepon berhasil disalin.');
         window.setTimeout(() => {
           if (tombolSalin.isConnected) tombolSalin.innerHTML = labelAwal;
         }, 2000);
@@ -1194,6 +1243,7 @@
         tutupModalKontak();
       }
     });
+    cariBatas();
   </script>
 </body>
 </html>
